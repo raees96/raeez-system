@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raeez Collection Data Tracker (Cloud)</title>
     
+    <!-- Firebase SDK Links -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -17,7 +18,7 @@
             color: #333;
             min-height: 100vh;
             overflow-x: hidden;
-            overflow-y: auto; /* Allow global scrolling if needed */
+            overflow-y: auto;
         }
         
         /* LOGIN SCREEN STYLING */
@@ -67,7 +68,7 @@
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             justify-content: space-between;
             transition: transform 0.3s ease;
-            position: fixed; /* Fixed position so it stays in place */
+            position: fixed;
             top: 0;
             bottom: 0;
             left: 0;
@@ -156,7 +157,7 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 40px; /* Added spacing at bottom */
+            margin-bottom: 40px;
         }
         h2 {
             color: #2c3e50;
@@ -190,13 +191,14 @@
             font-weight: bold;
             color: #34495e;
         }
-        input[type="text"], input[type="password"], input[type="number"], input[type="date"] {
+        input[type="text"], input[type="password"], input[type="number"], input[type="date"], select {
             width: 100%;
             padding: 12px;
             border: 1px solid #ccc;
             border-radius: 5px;
             box-sizing: border-box;
             font-size: 14px;
+            background-color: white;
         }
 
         /* Multiple Invoices Row Layout */
@@ -262,7 +264,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 600px; /* Ensures text doesn't squeeze on tiny screens */
+            min-width: 750px;
         }
         th, td {
             border: 1px solid #ddd;
@@ -331,7 +333,6 @@
             .sidebar.closed {
                 transform: translateX(-260px);
             }
-            /* By default on mobile, sidebar is hidden until toggled open */
             .sidebar.open {
                 transform: translateX(0);
             }
@@ -409,6 +410,7 @@
 </head>
 <body>
 
+    <!-- 1. LOGIN SCREEN VIEW -->
     <div id="loginScreen" class="login-screen">
         <div class="login-box">
             <h3>Raeez System Login</h3>
@@ -424,8 +426,10 @@
         </div>
     </div>
 
+    <!-- 2. MAIN SECURED DASHBOARD LAYOUT -->
     <div id="dashboardLayout" class="dashboard-layout">
         
+        <!-- SIDEBAR NAVIGATION -->
         <div class="sidebar" id="sidebarMenu">
             <div>
                 <div class="sidebar-header">Raeez Dashboard</div>
@@ -438,10 +442,13 @@
             <button class="menu-btn logout-btn" onclick="handleLogout()">🚪 Logout</button>
         </div>
 
+        <!-- MAIN WORKING AREA -->
         <div class="main-content" id="mainContentArea">
             
+            <!-- Toggle Menu Button -->
             <button class="toggle-menu-btn" onclick="toggleSidebar()">☰ Menu</button>
 
+            <!-- Welcome Default View -->
             <div id="welcomeView" class="welcome-view">
                 <h2>Welcome to Raeez Collection System</h2>
                 <p>Use the sidebar menu to add collection entries or search logs.</p>
@@ -449,6 +456,7 @@
 
             <div class="container" id="workspaceContainer" style="display: none;">
                 
+                <!-- SECTION 1: Add New Collection Form -->
                 <div id="addTab" class="tab-content">
                     <h2 id="formTitle">Add Collection Entry</h2>
                     <input type="hidden" id="editKey" value="">
@@ -458,22 +466,33 @@
                         <input type="text" id="customerName" placeholder="Enter customer name">
                     </div>
                     <div class="form-group">
-                        <label>Cheque Number (Optional):</label>
-                        <input type="text" id="chequeNumber" placeholder="Enter cheque number if applicable">
+                        <label>Payment Mode:</label>
+                        <select id="paymentMode" onchange="toggleChequeInput()">
+                            <option value="Cash">Cash</option>
+                            <option value="Cheque">Cheque</option>
+                            <option value="Online Transfer">Online Transfer</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="chequeNumGroup" style="display: none;">
+                        <label>Cheque Number:</label>
+                        <input type="text" id="chequeNumber" placeholder="Enter cheque number">
                     </div>
                     <div class="form-group">
                         <label>Date:</label>
                         <input type="date" id="dateSelect">
                     </div>
 
+                    <!-- MULTIPLE INVOICES CONTAINER -->
                     <label style="margin-top: 15px; color: #2c3e50;">Invoice Details:</label>
                     <div class="invoice-inputs-container" id="invoiceInputsContainer">
-                        </div>
+                        <!-- Invoice Rows dynamic induction -->
+                    </div>
                     <button type="button" class="btn-add-row" id="btnAddRow" onclick="addInvoiceRow('', '')">➕ Add Another Invoice</button>
 
                     <button class="action-btn" id="btnSave" onclick="confirmAndSave()">Save Collection</button>
                 </div>
 
+                <!-- SECTION 2: Search Collection View -->
                 <div id="searchTab" class="tab-content">
                     <h2>Collection Records Search</h2>
                     
@@ -490,7 +509,7 @@
                         </div>
                         
                         <div class="form-group" style="margin-top: 15px;">
-                            <label style="color: #2980b9;">Filter by Name, Invoice, or Cheque:</label>
+                            <label style="color: #2980b9;">Filter by Name, Invoice, Payment Mode or Cheque:</label>
                             <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Type text here to filter...">
                         </div>
                     </div>
@@ -503,17 +522,18 @@
                                     <th>Date</th>
                                     <th>Customer Name</th>
                                     <th>Invoice No</th>
+                                    <th>Payment Mode</th>
                                     <th>Cheque No</th>
                                     <th>Amount (LKR)</th>
                                     <th class="action-col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
-                                <tr><td colspan="7" class="loading-text">Loading data from cloud...</td></tr>
+                                <tr><td colspan="8" class="loading-text">Loading data from cloud...</td></tr>
                             </tbody>
                             <tfoot>
                                 <tr class="total-row">
-                                    <td colspan="5" style="text-align: right;" id="totalLabelCell">Selected Total Amount:</td>
+                                    <td colspan="6" style="text-align: right;" id="totalLabelCell">Selected Total Amount:</td>
                                     <td id="totalAmount" colspan="2">0.00</td>
                                 </tr>
                             </tfoot>
@@ -548,11 +568,21 @@
 
     document.getElementById('dateSelect').valueAsDate = new Date();
 
+    function toggleChequeInput() {
+        const mode = document.getElementById('paymentMode').value;
+        const chequeGroup = document.getElementById('chequeNumGroup');
+        if(mode === 'Cheque') {
+            chequeGroup.style.display = 'block';
+        } else {
+            chequeGroup.style.display = 'none';
+            document.getElementById('chequeNumber').value = '';
+        }
+    }
+
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebarMenu');
         const mainContent = document.getElementById('mainContentArea');
         
-        // Toggle open class for mobile view, and closed/fullscreen classes for desktop view
         if (window.innerWidth <= 768) {
             sidebar.classList.toggle('open');
         } else {
@@ -561,7 +591,6 @@
         }
     }
 
-    // Close sidebar on mobile when a link is clicked
     function closeSidebarOnMobile() {
         if (window.innerWidth <= 768) {
             document.getElementById('sidebarMenu').classList.remove('open');
@@ -591,7 +620,6 @@
             document.getElementById('dashboardLayout').style.display = 'block';
             document.getElementById('usernameInput').value = '';
             document.getElementById('passwordInput').value = '';
-            // Reset view states
             document.getElementById('sidebarMenu').classList.remove('closed');
             document.getElementById('sidebarMenu').classList.remove('open');
             document.getElementById('mainContentArea').classList.remove('fullscreen');
@@ -685,13 +713,14 @@
         currentlyFilteredKeys = [];
 
         if (collections.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="loading-text">No records found or still loading...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="loading-text">No records found or still loading...</td></tr>';
             calculateTotal();
             return;
         }
 
         collections.forEach(function(item) {
             const chequeStr = item.cheque ? item.cheque.toLowerCase() : '';
+            const modeStr = item.mode ? item.mode.toLowerCase() : 'cash';
             
             let matchesDate = true;
             if (fromDate && item.date < fromDate) matchesDate = false;
@@ -700,6 +729,7 @@
             let matchesText = (
                 item.customer.toLowerCase().includes(query) || 
                 item.invoice.toLowerCase().includes(query) || 
+                modeStr.includes(query) ||
                 chequeStr.includes(query)
             );
 
@@ -708,6 +738,7 @@
                 const isChecked = selectedKeys.includes(item.key) ? 'checked' : '';
                 const rowClass = selectedKeys.includes(item.key) ? 'selected-row' : '';
                 const displayCheque = item.cheque ? item.cheque : '-';
+                const displayMode = item.mode ? item.mode : 'Cash';
 
                 let row = `<tr id="row-${item.key}" class="${rowClass}">
                     <td class="tick-col">
@@ -716,6 +747,7 @@
                     <td>${item.date}</td>
                     <td>${item.customer}</td>
                     <td>${item.invoice}</td>
+                    <td><b>${displayMode}</b></td>
                     <td>${displayCheque}</td>
                     <td>${parseFloat(item.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                     <td class="action-col">
@@ -728,7 +760,7 @@
         });
         
         if(currentlyFilteredKeys.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" class="loading-text">No data matches your filter criteria.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="loading-text">No data matches your filter criteria.</td></tr>';
         }
         
         updateSelectAllBoxState();
@@ -791,6 +823,8 @@
         if(!item) return;
 
         document.getElementById('customerName').value = item.customer;
+        document.getElementById('paymentMode').value = item.mode || 'Cash';
+        toggleChequeInput();
         document.getElementById('chequeNumber').value = item.cheque || '';
         document.getElementById('dateSelect').value = item.date;
         document.getElementById('editKey').value = key;
@@ -824,6 +858,7 @@
 
     function confirmAndSave() {
         const customer = document.getElementById('customerName').value;
+        const mode = document.getElementById('paymentMode').value;
         const cheque = document.getElementById('chequeNumber').value;
         const date = document.getElementById('dateSelect').value;
         const editKey = document.getElementById('editKey').value;
@@ -850,7 +885,7 @@
                 invoiceRows.forEach(row => {
                     const invoice = row.querySelector('.invoice-num-field').value;
                     const amount = row.querySelector('.invoice-amt-field').value;
-                    promises.push(db.push({ customer, invoice, cheque, amount, date }));
+                    promises.push(db.push({ customer, invoice, mode, cheque, amount, date }));
                 });
                 
                 Promise.all(promises).then(() => {
@@ -862,7 +897,7 @@
                 const invoice = invoiceRows[0].querySelector('.invoice-num-field').value;
                 const amount = invoiceRows[0].querySelector('.invoice-amt-field').value;
                 
-                db.child(editKey).set({ customer, invoice, cheque, amount, date })
+                db.child(editKey).set({ customer, invoice, mode, cheque, amount, date })
                     .then(() => {
                         alert("Updated & Saved to cloud!");
                         resetForm();
@@ -874,6 +909,8 @@
 
     function resetForm() {
         document.getElementById('customerName').value = '';
+        document.getElementById('paymentMode').value = 'Cash';
+        toggleChequeInput();
         document.getElementById('chequeNumber').value = '';
         document.getElementById('editKey').value = "";
         document.getElementById('formTitle').innerText = "Add Collection Entry";
@@ -891,11 +928,11 @@
         }
         
         const labelCell = document.getElementById('totalLabelCell');
-        labelCell.setAttribute('colspan', '3');
+        labelCell.setAttribute('colspan', '4');
         
         window.print();
         
-        labelCell.setAttribute('colspan', '5');
+        labelCell.setAttribute('colspan', '6');
     }
 
     addInvoiceRow('', '');

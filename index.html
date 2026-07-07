@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Raeez Collection Data Tracker (Cloud)</title>
     
+    <!-- Firebase SDK Links -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
 
@@ -52,6 +53,7 @@
             display: none;
             height: 100vh;
             width: 100vw;
+            position: relative;
         }
         
         /* Sidebar Styling */
@@ -64,6 +66,15 @@
             padding-top: 20px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             justify-content: space-between;
+            transition: transform 0.3s ease;
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 0;
+            z-index: 10;
+        }
+        .sidebar.closed {
+            transform: translateX(-260px);
         }
         .sidebar-header {
             text-align: center;
@@ -107,11 +118,32 @@
             background-color: #e74c3c !important;
         }
 
+        /* Toggle Menu Button */
+        .toggle-menu-btn {
+            background-color: #2c3e50;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .toggle-menu-btn:hover {
+            background-color: #34495e;
+        }
+
         /* Main Content Styling */
         .main-content {
             flex: 1;
-            padding: 30px;
+            padding: 20px 30px;
             overflow-y: auto;
+            margin-left: 260px;
+            transition: margin-left 0.3s ease;
+        }
+        .main-content.fullscreen {
+            margin-left: 0;
         }
         .container {
             max-width: 1000px;
@@ -279,10 +311,57 @@
             font-weight: bold;
             color: #7f8c8d;
         }
+
+        /* PRINT STYLING - ONLY PRINT SELECTED TABLE DATA */
+        @media print {
+            body, .main-content, .container {
+                background: white !important;
+                color: black !important;
+                height: auto !important;
+                overflow: visible !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .sidebar, .toggle-menu-btn, .search-box, .export-btn, #formTitle, .btn-add-row, #btnSave, .welcome-view, h2 {
+                display: none !important;
+            }
+            .main-content {
+                margin-left: 0 !important;
+            }
+            .container {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+            }
+            table {
+                width: 100% !important;
+                border: 1px solid #000 !important;
+            }
+            th, td {
+                border: 1px solid #000 !important;
+                padding: 8px !important;
+                font-size: 13px !important;
+            }
+            .tick-col, .action-col, .row-checkbox, #selectAllBox {
+                display: none !important;
+            }
+            tr {
+                display: none;
+            }
+            tr.selected-row, tr.total-row, thead tr {
+                display: table-row !important;
+                background: white !important;
+            }
+            .total-row td {
+                border-top: 2px double #000 !important;
+            }
+        }
     </style>
 </head>
 <body>
 
+    <!-- 1. LOGIN SCREEN VIEW -->
     <div id="loginScreen" class="login-screen">
         <div class="login-box">
             <h3>Raeez System Login</h3>
@@ -298,9 +377,11 @@
         </div>
     </div>
 
+    <!-- 2. MAIN SECURED DASHBOARD LAYOUT -->
     <div id="dashboardLayout" class="dashboard-layout">
         
-        <div class="sidebar">
+        <!-- SIDEBAR NAVIGATION -->
+        <div class="sidebar" id="sidebarMenu">
             <div>
                 <div class="sidebar-header">Raeez Dashboard</div>
                 <div class="menu-links">
@@ -312,8 +393,13 @@
             <button class="menu-btn logout-btn" onclick="handleLogout()">🚪 Logout</button>
         </div>
 
-        <div class="main-content">
+        <!-- MAIN WORKING AREA -->
+        <div class="main-content" id="mainContentArea">
             
+            <!-- Toggle Menu Button -->
+            <button class="toggle-menu-btn" onclick="toggleSidebar()">☰ Menu</button>
+
+            <!-- Welcome Default View -->
             <div id="welcomeView" class="welcome-view">
                 <h2>Welcome to Raeez Collection System</h2>
                 <p>Use the sidebar menu to add collection entries or search logs.</p>
@@ -321,6 +407,7 @@
 
             <div class="container" id="workspaceContainer" style="display: none;">
                 
+                <!-- SECTION 1: Add New Collection Form -->
                 <div id="addTab" class="tab-content">
                     <h2 id="formTitle">Add Collection Entry</h2>
                     <input type="hidden" id="editKey" value="">
@@ -338,14 +425,17 @@
                         <input type="date" id="dateSelect">
                     </div>
 
+                    <!-- MULTIPLE INVOICES CONTAINER -->
                     <label style="margin-top: 15px; color: #2c3e50;">Invoice Details:</label>
                     <div class="invoice-inputs-container" id="invoiceInputsContainer">
-                        </div>
+                        <!-- Invoice Rows dynamic induction -->
+                    </div>
                     <button type="button" class="btn-add-row" id="btnAddRow" onclick="addInvoiceRow('', '')">➕ Add Another Invoice</button>
 
                     <button class="action-btn" id="btnSave" onclick="confirmAndSave()">Save Collection</button>
                 </div>
 
+                <!-- SECTION 2: Search Collection View -->
                 <div id="searchTab" class="tab-content">
                     <h2>Collection Records Search</h2>
                     
@@ -384,7 +474,7 @@
                         </tbody>
                         <tfoot>
                             <tr class="total-row">
-                                <td colspan="5" style="text-align: right;">Selected Total Amount:</td>
+                                <td colspan="5" style="text-align: right;" id="totalLabelCell">Selected Total Amount:</td>
                                 <td id="totalAmount" colspan="2">0.00</td>
                             </tr>
                         </tfoot>
@@ -418,6 +508,13 @@
 
     document.getElementById('dateSelect').valueAsDate = new Date();
 
+    function toggleSidebar() {
+        const sidebar = document.getElementById('sidebarMenu');
+        const mainContent = document.getElementById('mainContentArea');
+        sidebar.classList.toggle('closed');
+        mainContent.classList.toggle('fullscreen');
+    }
+
     // Listen for Realtime Changes from Firebase Cloud
     db.on("value", (snapshot) => {
         collections = [];
@@ -438,9 +535,12 @@
 
         if (user.toLowerCase() === "raeez" && pass === "1234") {
             document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('dashboardLayout').style.display = 'flex';
+            document.getElementById('dashboardLayout').style.display = 'block';
             document.getElementById('usernameInput').value = '';
             document.getElementById('passwordInput').value = '';
+            // Reset sidebar view on clean login
+            document.getElementById('sidebarMenu').classList.remove('closed');
+            document.getElementById('mainContentArea').classList.remove('fullscreen');
         } else {
             alert("Invalid Username or Password! Please try again.");
         }
@@ -592,7 +692,7 @@
 
     function updateSelectAllBoxState() {
         const selectAllBox = document.getElementById('selectAllBox');
-        if (currentlyFilteredIndices?.length === 0 || currentlyFilteredKeys.length === 0) {
+        if (currentlyFilteredKeys.length === 0) {
             selectAllBox.checked = false;
             return;
         }
@@ -733,7 +833,15 @@
             alert("Please select at least one collection to print.");
             return;
         }
+        
+        // Temporarily adjust colspan for print view total row layout
+        const labelCell = document.getElementById('totalLabelCell');
+        labelCell.setAttribute('colspan', '3');
+        
         window.print();
+        
+        // Restore colspan after printing
+        labelCell.setAttribute('colspan', '5');
     }
 
     addInvoiceRow('', '');

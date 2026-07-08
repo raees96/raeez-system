@@ -550,9 +550,14 @@
                             <span>(-) Customer Return Deductions:</span>
                             <span>LKR <span id="liveReturnDeduction">0.00</span></span>
                         </div>
-                        <div class="live-summary-row final-net">
+                        <div class="live-summary-row" style="font-weight: bold; color: #2c3e50; border-top: 1px solid #d4e6f1; padding-top: 4px;">
                             <span>Net Payable Amount:</span>
                             <span>LKR <span id="liveNetPayableAmount">0.00</span></span>
+                        </div>
+                        <!-- NEW PAYMENT MODE LIVE BREAKDOWN ROW -->
+                        <div class="live-summary-row final-net" id="livePaymentModeRow">
+                            <span>Selected Mode Allocation (<span id="livePaymentModeLabel">Cash</span>):</span>
+                            <span>LKR <span id="livePaymentModeTotal">0.00</span></span>
                         </div>
                     </div>
 
@@ -712,6 +717,7 @@
             chequeSection.style.display = 'none';
             chequeContainer.innerHTML = '';
         }
+        calculateLiveFormTotals();
     }
 
     function toggleSidebar() {
@@ -870,20 +876,21 @@
                 </div>
                 <div class="form-group">
                     <label>Cheque Amount (LKR):</label>
-                    <input type="number" class="cheque-amt-field" placeholder="0.00" value="${chqAmt}">
+                    <input type="number" class="cheque-amt-field" placeholder="0.00" value="${chqAmt}" oninput="calculateLiveFormTotals()">
                 </div>
                 <button type="button" class="btn-remove-row" onclick="removeDynamicRow('${rowId}', 'cheque')">❌</button>
             </div>
         `;
         container.insertAdjacentHTML('beforeend', rowHtml);
         manageRemoveButtons('cheque');
+        calculateLiveFormTotals();
     }
 
     function removeDynamicRow(rowId, type) {
         const row = document.getElementById(rowId);
         if(row) row.remove();
         manageRemoveButtons(type);
-        if(type === 'invoice') calculateLiveFormTotals();
+        calculateLiveFormTotals();
     }
 
     function manageRemoveButtons(type) {
@@ -896,7 +903,7 @@
         }
     }
 
-    // LIVE PRE-SAVE FORM CALCULATION LOGIC
+    // UPDATED LIVE PRE-SAVE FORM CALCULATION WITH PAYMENT MODE TOTAL LOGIC
     function calculateLiveFormTotals() {
         const invoiceRows = document.querySelectorAll('#invoiceInputsContainer .dynamic-row');
         let grossTotal = 0;
@@ -912,6 +919,34 @@
         document.getElementById('liveGrossInvoiceTotal').innerText = grossTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
         document.getElementById('liveReturnDeduction').innerText = returnAmt.toLocaleString('en-US', {minimumFractionDigits: 2});
         document.getElementById('liveNetPayableAmount').innerText = netPayable.toLocaleString('en-US', {minimumFractionDigits: 2});
+
+        // Mode specific allocation display logic
+        const mode = document.getElementById('paymentMode').value;
+        document.getElementById('livePaymentModeLabel').innerText = mode;
+
+        let modeAllocatedTotal = 0;
+        const modeRowElement = document.getElementById('livePaymentModeRow');
+
+        if(mode === 'Cheque') {
+            const chequeRows = document.querySelectorAll('#chequeInputsContainer .dynamic-row');
+            chequeRows.forEach(row => {
+                const amt = parseFloat(row.querySelector('.cheque-amt-field').value || 0);
+                modeAllocatedTotal += amt;
+            });
+            
+            // Check matching validation colors
+            if(Math.abs(modeAllocatedTotal - netPayable) < 0.01 && netPayable > 0) {
+                modeRowElement.style.color = '#27ae60'; // Green matches perfectly
+            } else {
+                modeRowElement.style.color = '#c0392b'; // Red mismatch alert
+            }
+        } else {
+            // Cash or Online automatically reflects the exact net balance
+            modeAllocatedTotal = netPayable;
+            modeRowElement.style.color = '#27ae60';
+        }
+
+        document.getElementById('livePaymentModeTotal').innerText = modeAllocatedTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
     }
 
     function filterData() {
@@ -993,7 +1028,6 @@
         calculateTotal();
     }
 
-    // UPDATED CUSTOMER STATEMENT GENERATION WITH ADVANCED FILTERS
     function generateCustomerReport() {
         const selectedCustomer = document.getElementById('reportCustomerSelect').value;
         const fromDate = document.getElementById('reportFromDate').value;
@@ -1018,7 +1052,6 @@
 
         let recordCounter = 0;
 
-        // Sort items by date sequentially
         let sortedCollections = [...collections].sort((a,b) => new String(a.date).localeCompare(b.date));
 
         sortedCollections.forEach(item => {
@@ -1036,12 +1069,10 @@
                     chequeSearchText = item.cheque;
                 }
 
-                // Date Filtering Logic
                 let matchesDate = true;
                 if (fromDate && item.date < fromDate) matchesDate = false;
                 if (toDate && item.date > toDate) matchesDate = false;
 
-                // Text Search Filtering Logic (Invoice, Mode, Cheques)
                 let matchesText = (
                     item.invoice.toLowerCase().includes(query) || 
                     modeStr.includes(query) ||
@@ -1142,7 +1173,6 @@
         document.getElementById('returnAmount').value = item.returnAmount || 0;
         document.getElementById('editKey').value = key;
 
-        // Reset inputs
         document.getElementById('invoiceInputsContainer').innerHTML = '';
         document.getElementById('chequeInputsContainer').innerHTML = '';
 
@@ -1199,8 +1229,15 @@
         }
 
         let invoicesValid = true;
+        let invoiceGrossTotal = 0;
         invoiceRows.forEach(row => {
-            if(!row.querySelector('.invoice-num-field').value || !row.querySelector('.invoice-amt-field').value) invoicesValid = false;
+            const invNum = row.querySelector('.invoice-num-field').value;
+            const invAmt = row.querySelector('.invoice-amt-field').value;
+            if(!invNum || !invAmt) {
+                invoicesValid = false;
+            } else {
+                invoiceGrossTotal += parseFloat(invAmt);
+            }
         });
         if(!invoicesValid) {
             alert("Please fill all invoice numbers and amounts.");
@@ -1211,6 +1248,8 @@
         if(mode === 'Cheque') {
             const chqRows = document.querySelectorAll('#chequeInputsContainer .dynamic-row');
             let chqValid = true;
+            let totalChequeValue = 0;
+            
             chqRows.forEach(row => {
                 const num = row.querySelector('.cheque-num-field').value;
                 const amt = row.querySelector('.cheque-amt-field').value;
@@ -1218,10 +1257,18 @@
                     chqValid = false;
                 } else {
                     chequesList.push({ num, amt });
+                    totalChequeValue += parseFloat(amt);
                 }
             });
             if(!chqValid || chequesList.length === 0) {
                 alert("Please fill all Cheque numbers and respective breakdown Amounts.");
+                return;
+            }
+
+            // Cross check if Cheques total matches Net balance perfectly
+            const requiredNet = invoiceGrossTotal - returnAmount;
+            if (Math.abs(totalChequeValue - requiredNet) > 0.01) {
+                alert(`Amount Mismatch Detected!\n\nNet Payable Amount: LKR ${requiredNet.toFixed(2)}\nTotal Cheque Breakdown Entered: LKR ${totalChequeValue.toFixed(2)}\n\nBoth totals must match perfectly before saving.`);
                 return;
             }
         }

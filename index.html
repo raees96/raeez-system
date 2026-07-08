@@ -270,7 +270,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 850px;
+            min-width: 950px;
         }
         th, td {
             border: 1px solid #ddd;
@@ -491,6 +491,13 @@
                     </div>
                     <button type="button" class="btn-add-row" id="btnAddRow" onclick="addInvoiceRow('', '')">➕ Add Another Invoice</button>
 
+                    <!-- NEW FEATURE: CUSTOMER RETURNS ENTRY -->
+                    <div class="form-group" style="margin-top: 25px; background-color: #fdf2e9; padding: 15px; border-radius: 6px; border: 1px solid #fadbd8;">
+                        <label style="color: #e67e22;">Customer Return Goods Value (LKR) - Optional:</label>
+                        <input type="number" id="returnAmount" placeholder="0.00" value="0">
+                        <small style="color: #7f8c8d; display: block; margin-top: 4px;">This amount will be automatically deducted from the total value.</small>
+                    </div>
+
                     <!-- MULTIPLE CHEQUES CONTAINER (Only shows if Cheque is selected) -->
                     <div id="chequeSectionContainer" style="display: none; margin-top: 20px;">
                         <label style="color: #e67e22;">Cheque Details (Breakdown):</label>
@@ -534,17 +541,19 @@
                                     <th>Customer Name</th>
                                     <th>Invoice No</th>
                                     <th>Payment Mode</th>
-                                    <th>Cheque Details (No / Amount)</th>
-                                    <th>Amount (LKR)</th>
+                                    <th>Cheque Details</th>
+                                    <th>Total (LKR)</th>
+                                    <th>Return (LKR)</th>
+                                    <th>Net Net Balance (LKR)</th>
                                     <th class="action-col">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody">
-                                <tr><td colspan="8" class="loading-text">Loading data from cloud...</td></tr>
+                                <tr><td colspan="10" class="loading-text">Loading data from cloud...</td></tr>
                             </tbody>
                             <tfoot>
                                 <tr class="total-row">
-                                    <td colspan="6" style="text-align: right;" id="totalLabelCell">Selected Total Amount:</td>
+                                    <td colspan="8" style="text-align: right;" id="totalLabelCell">Selected Net Total Balance:</td>
                                     <td id="totalAmount" colspan="2">0.00</td>
                                 </tr>
                             </tfoot>
@@ -732,8 +741,8 @@
     }
 
     function manageRemoveButtons(type) {
-        const selector = type === 'invoice' ? '.invoice-inputs-container .dynamic-row' : '.cheque-box-container .dynamic-row';
-        const rows = document.querySelectorAll(selector);
+        const containerId = type === 'invoice' ? 'invoiceInputsContainer' : 'chequeInputsContainer';
+        const rows = document.getElementById(containerId).querySelectorAll('.dynamic-row');
         if(rows.length <= 1) {
             if(rows[0]) rows[0].querySelector('.btn-remove-row').style.display = 'none';
         } else {
@@ -751,7 +760,7 @@
         currentlyFilteredKeys = [];
 
         if (collections.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="loading-text">No records found or still loading...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" class="loading-text">No records found or still loading...</td></tr>';
             calculateTotal();
             return;
         }
@@ -759,16 +768,21 @@
         collections.forEach(function(item) {
             const modeStr = item.mode ? item.mode.toLowerCase() : 'cash';
             
-            // Format Cheques presentation and search text synthesis
+            // Format Cheques presentation
             let chequeDisplayHtml = '-';
             let chequeSearchText = '';
             if(item.chequesList && item.chequesList.length > 0) {
                 chequeDisplayHtml = item.chequesList.map(c => `• No: <b>${c.num}</b> (LKR ${parseFloat(c.amt).toLocaleString()})`).join('<br>');
                 chequeSearchText = item.chequesList.map(c => c.num + ' ' + c.amt).join(' ');
-            } else if(item.cheque) { // legacy compatibility
+            } else if(item.cheque) { 
                 chequeDisplayHtml = `No: ${item.cheque}`;
                 chequeSearchText = item.cheque;
             }
+
+            // Calculation Logic for Returns
+            const returnVal = parseFloat(item.returnAmount || 0);
+            const totalVal = parseFloat(item.amount || 0);
+            const netBalance = totalVal - returnVal;
 
             let matchesDate = true;
             if (fromDate && item.date < fromDate) matchesDate = false;
@@ -796,7 +810,9 @@
                     <td>${item.invoice}</td>
                     <td><b>${displayMode}</b></td>
                     <td>${chequeDisplayHtml}</td>
-                    <td>${parseFloat(item.amount).toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td>${totalVal.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    <td style="color: #e67e22; font-weight: 500;">${returnVal > 0 ? returnVal.toLocaleString('en-US', {minimumFractionDigits: 2}) : '0.00'}</td>
+                    <td style="color: #27ae60; font-weight: bold;">${netBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
                     <td class="action-col">
                         <button class="btn-edit" onclick="editRecord('${item.key}')">Edit</button>
                         <button class="btn-delete" onclick="deleteRecord('${item.key}')">Delete</button>
@@ -807,7 +823,7 @@
         });
         
         if(currentlyFilteredKeys.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" class="loading-text">No data matches your filter criteria.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="10" class="loading-text">No data matches your filter criteria.</td></tr>';
         }
         
         updateSelectAllBoxState();
@@ -851,12 +867,16 @@
     }
 
     function calculateTotal() {
-        let total = 0;
+        let totalNet = 0;
         selectedKeys.forEach(key => {
             const item = collections.find(c => c.key === key);
-            if(item) total += parseFloat(item.amount);
+            if(item) {
+                const totalVal = parseFloat(item.amount || 0);
+                const returnVal = parseFloat(item.returnAmount || 0);
+                totalNet += (totalVal - returnVal);
+            }
         });
-        document.getElementById('totalAmount').innerText = total.toLocaleString('en-US', {minimumFractionDigits: 2});
+        document.getElementById('totalAmount').innerText = totalNet.toLocaleString('en-US', {minimumFractionDigits: 2});
     }
 
     function editRecord(key) {
@@ -872,6 +892,7 @@
         document.getElementById('customerName').value = item.customer;
         document.getElementById('paymentMode').value = item.mode || 'Cash';
         document.getElementById('dateSelect').value = item.date;
+        document.getElementById('returnAmount').value = item.returnAmount || 0;
         document.getElementById('editKey').value = key;
 
         // Reset inputs
@@ -879,9 +900,8 @@
         document.getElementById('chequeInputsContainer').innerHTML = '';
 
         addInvoiceRow(item.invoice, item.amount);
-        document.getElementById('btnAddRow').style.display = 'none'; // Lock addition on single record modifications
+        document.getElementById('btnAddRow').style.display = 'none'; 
 
-        // Populate multiple cheques if available
         if(item.mode === 'Cheque') {
             document.getElementById('chequeSectionContainer').style.display = 'block';
             if(item.chequesList && item.chequesList.length > 0) {
@@ -889,7 +909,7 @@
             } else if(item.cheque) {
                 addChequeRow(item.cheque, item.amount);
             }
-            document.getElementById('btnAddChequeRow').style.display = 'none'; // Lock breakdown edit extensions on single rows
+            document.getElementById('btnAddChequeRow').style.display = 'none';
         } else {
             document.getElementById('chequeSectionContainer').style.display = 'none';
         }
@@ -922,14 +942,14 @@
         const mode = document.getElementById('paymentMode').value;
         const date = document.getElementById('dateSelect').value;
         const editKey = document.getElementById('editKey').value;
-        const invoiceRows = document.querySelectorAll('.invoice-inputs-container .dynamic-row');
+        const returnAmount = parseFloat(document.getElementById('returnAmount').value || 0);
+        const invoiceRows = document.querySelectorAll('#invoiceInputsContainer .dynamic-row');
 
         if(!customer || !date || invoiceRows.length === 0) {
             alert("Please enter customer details and at least one invoice row.");
             return;
         }
 
-        // Validate Invoices
         let invoicesValid = true;
         invoiceRows.forEach(row => {
             if(!row.querySelector('.invoice-num-field').value || !row.querySelector('.invoice-amt-field').value) invoicesValid = false;
@@ -939,10 +959,9 @@
             return;
         }
 
-        // Validate Cheques breakdown if payment method is Cheque
         let chequesList = [];
         if(mode === 'Cheque') {
-            const chqRows = document.querySelectorAll('.cheque-box-container .dynamic-row');
+            const chqRows = document.querySelectorAll('#chequeInputsContainer .dynamic-row');
             let chqValid = true;
             chqRows.forEach(row => {
                 const num = row.querySelector('.cheque-num-field').value;
@@ -957,30 +976,24 @@
                 alert("Please fill all Cheque numbers and respective breakdown Amounts.");
                 return;
             }
-
-            // Cross verification total invoices match cheques total (Optional Safety Check warning only)
-            let totalInvAmt = 0; invoiceRows.forEach(r => totalInvAmt += parseFloat(r.querySelector('.invoice-amt-field').value || 0));
-            let totalChqAmt = 0; chequesList.forEach(c => totalChqAmt += parseFloat(c.amt || 0));
-            if(Math.abs(totalInvAmt - totalChqAmt) > 0.01) {
-                if(!confirm(`Warning: Total Invoice Amount (LKR ${totalInvAmt.toLocaleString()}) does not match Total Cheque Breakdown Amount (LKR ${totalChqAmt.toLocaleString()}). Do you still want to proceed?`)) {
-                    return;
-                }
-            }
         }
 
         if (confirm("Do you want to save this data?")) {
             if (!editKey) {
                 let promises = [];
-                // Split multi-invoice as individual tracks in DB structure for atomic data integrity tracking
-                invoiceRows.forEach(row => {
+                // Handle Multi Invoice Splits 
+                // Note: The returnAmount is applied proportionally or to the combined block. For simplicity, we track it on each input transaction split.
+                invoiceRows.forEach((row, index) => {
                     const invoice = row.querySelector('.invoice-num-field').value;
                     const amount = row.querySelector('.invoice-amt-field').value;
                     
-                    if(mode === 'Cheque') {
-                        promises.push(db.push({ customer, invoice, mode, chequesList, amount, date }));
-                    } else {
-                        promises.push(db.push({ customer, invoice, mode, amount, date }));
-                    }
+                    // Apply return amount to the first row entry block, others get 0 if multiple entries added at once
+                    const assignedReturn = (index === 0) ? returnAmount : 0;
+
+                    let dataObject = { customer, invoice, mode, amount, date, returnAmount: assignedReturn };
+                    if(mode === 'Cheque') dataObject.chequesList = chequesList;
+
+                    promises.push(db.push(dataObject));
                 });
                 
                 Promise.all(promises).then(() => {
@@ -992,7 +1005,7 @@
                 const invoice = invoiceRows[0].querySelector('.invoice-num-field').value;
                 const amount = invoiceRows[0].querySelector('.invoice-amt-field').value;
                 
-                let updateData = { customer, invoice, mode, amount, date };
+                let updateData = { customer, invoice, mode, amount, date, returnAmount };
                 if(mode === 'Cheque') updateData.chequesList = chequesList;
 
                 db.child(editKey).set(updateData)
@@ -1008,6 +1021,7 @@
     function resetForm() {
         document.getElementById('customerName').value = '';
         document.getElementById('paymentMode').value = 'Cash';
+        document.getElementById('returnAmount').value = '0';
         toggleChequeInput();
         document.getElementById('editKey').value = "";
         document.getElementById('formTitle').innerText = "Add Collection Entry";
@@ -1025,13 +1039,10 @@
             alert("Please select at least one collection to print.");
             return;
         }
-        
         const labelCell = document.getElementById('totalLabelCell');
-        labelCell.setAttribute('colspan', '4');
-        
+        labelCell.setAttribute('colspan', '7');
         window.print();
-        
-        labelCell.setAttribute('colspan', '6');
+        labelCell.setAttribute('colspan', '8');
     }
 
     addInvoiceRow('', '');

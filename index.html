@@ -74,9 +74,6 @@
             left: 0;
             z-index: 100;
         }
-        .sidebar.closed {
-            transform: translateX(-260px);
-        }
         .sidebar-header {
             text-align: center;
             font-size: 18px;
@@ -147,9 +144,6 @@
             min-height: 100vh;
             box-sizing: border-box;
         }
-        .main-content.fullscreen {
-            margin-left: 0;
-        }
         .container {
             max-width: 1000px;
             margin: auto;
@@ -201,7 +195,7 @@
             background-color: white;
         }
 
-        /* Multiple Inputs Row Layout */
+        /* Dynamic Input Layouts */
         .dynamic-inputs-container {
             border: 1px dashed #3498db;
             padding: 15px;
@@ -236,7 +230,6 @@
         }
         .btn-add-row:hover { background-color: #2980b9; }
         .btn-add-cheque { background-color: #e67e22; }
-        .btn-add-cheque:hover { background-color: #d35400; }
         
         .btn-remove-row {
             background-color: #e74c3c;
@@ -247,7 +240,6 @@
             cursor: pointer;
             font-weight: bold;
         }
-        .btn-remove-row:hover { background-color: #c0392b; }
 
         /* LIVE SUMMARY PANEL STYLING */
         .live-summary-panel {
@@ -281,23 +273,11 @@
             margin-top: 6px;
         }
         
-        /* Date Filter Controls Bar */
-        .date-filter-row {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-        .date-filter-row .form-group {
-            flex: 1;
-            margin-bottom: 0;
-        }
-
-        /* Table Layout Container for Horizontal Scroll */
+        /* Layout Structure elements */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
             margin-top: 15px;
-            -webkit-overflow-scrolling: touch;
         }
         table {
             width: 100%;
@@ -313,28 +293,8 @@
             background-color: #34495e;
             color: white;
         }
-        tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-        .total-row {
-            font-weight: bold;
-            background-color: #eaeded !important;
-        }
-        .tick-col {
-            text-align: center;
-            width: 50px;
-        }
-        .action-col {
-            text-align: center;
-            width: 140px;
-        }
-        input[type="checkbox"] {
-            transform: scale(1.3);
-            cursor: pointer;
-        }
-        .selected-row {
-            background-color: #e8f8f5 !important;
-        }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        .total-row { font-weight: bold; background-color: #eaeded !important; }
         
         button.action-btn {
             width: 100%;
@@ -346,103 +306,17 @@
             font-size: 16px;
             cursor: pointer;
             font-weight: bold;
-            transition: 0.2s;
-            margin-top: 15px;
+            margin-top: 10px;
         }
-        button.action-btn:hover { background-color: #219653; }
+        .btn-draft {
+            background-color: #7f8c8d !important;
+        }
+        .btn-draft:hover { background-color: #6c7a89 !important; }
         .export-btn { background-color: #2980b9; margin-top: 20px; }
-        .export-btn:hover { background-color: #2471a3; }
         .btn-edit { background-color: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-right: 5px; }
         .btn-delete { background-color: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; }
         .search-box { background-color: #ebf5fb; padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid #d4e6f1; }
-        
-        .loading-text {
-            text-align: center;
-            padding: 15px;
-            font-weight: bold;
-            color: #7f8c8d;
-        }
-
-        /* Mobile Responsive Adjustments */
-        @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-260px);
-            }
-            .sidebar.closed {
-                transform: translateX(-260px);
-            }
-            .sidebar.open {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0 !important;
-                padding: 15px 10px;
-            }
-            .dynamic-row {
-                flex-direction: column;
-                gap: 8px;
-                align-items: stretch;
-                border-bottom: 1px dashed #ccc;
-                padding-bottom: 10px;
-            }
-            .btn-remove-row {
-                align-self: flex-end;
-                padding: 8px 12px;
-            }
-            .date-filter-row {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-
-        /* PRINT STYLING */
-        @media print {
-            body, .main-content, .container {
-                background: white !important;
-                color: black !important;
-                height: auto !important;
-                overflow: visible !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-            }
-            .sidebar, .toggle-menu-btn, .search-box, .export-btn, #formTitle, .btn-add-row, #btnSave, .welcome-view, h2, .report-filter-section, .print-report-btn {
-                display: none !important;
-            }
-            .main-content {
-                margin-left: 0 !important;
-            }
-            .container {
-                box-shadow: none !important;
-                border: none !important;
-                max-width: 100% !important;
-            }
-            .table-responsive {
-                overflow: visible !important;
-            }
-            table {
-                width: 100% !important;
-                border: 1px solid #000 !important;
-                min-width: 100% !important;
-            }
-            th, td {
-                border: 1px solid #000 !important;
-                padding: 8px !important;
-                font-size: 13px !important;
-            }
-            .tick-col, .action-col, .row-checkbox, #selectAllBox {
-                display: none !important;
-            }
-            /* Tab content adjustments during printing */
-            #searchTab tr { display: none; }
-            #searchTab tr.selected-row, #searchTab tr.total-row, #searchTab thead tr { display: table-row !important; background: white !important; }
-            
-            #reportTab tr { display: table-row !important; }
-            
-            .total-row td {
-                border-top: 2px double #000 !important;
-            }
-        }
+        .badge-draft { background-color: #e67e22; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -466,13 +340,13 @@
     <!-- 2. MAIN SECURED DASHBOARD LAYOUT -->
     <div id="dashboardLayout" class="dashboard-layout">
         
-        <!-- SIDEBAR NAVIGATION -->
         <div class="sidebar" id="sidebarMenu">
             <div>
                 <div class="sidebar-header">Raeez Dashboard</div>
                 <div class="menu-links">
                     <button class="menu-btn active" id="btnHomeMenu" onclick="goHome(this)">🏠 Home</button>
                     <button class="menu-btn" id="btnAddMenu" onclick="switchView('addTab', this)">📝 Add New Collection</button>
+                    <button class="menu-btn" id="btnDraftMenu" onclick="switchView('draftTab', this)">📂 Draft Collections <span id="draftCountBadge" class="badge-draft" style="display:none;">0</span></button>
                     <button class="menu-btn" id="btnSearchMenu" onclick="switchView('searchTab', this)">🔍 Search & History</button>
                     <button class="menu-btn" id="btnReportMenu" onclick="switchView('reportTab', this)">📊 Customer Reports</button>
                 </div>
@@ -480,24 +354,21 @@
             <button class="menu-btn logout-btn" onclick="handleLogout()">🚪 Logout</button>
         </div>
 
-        <!-- MAIN WORKING AREA -->
         <div class="main-content" id="mainContentArea">
-            
-            <!-- Toggle Menu Button -->
             <button class="toggle-menu-btn" onclick="toggleSidebar()">☰ Menu</button>
 
-            <!-- Welcome Default View -->
             <div id="welcomeView" class="welcome-view">
                 <h2>Welcome to Raeez Collection System</h2>
-                <p>Use the sidebar menu to add collection entries, search logs or generate reports.</p>
+                <p>Use the sidebar menu to manage your live records or katu satahuna (drafts).</p>
             </div>
 
             <div class="container" id="workspaceContainer" style="display: none;">
                 
-                <!-- SECTION 1: Add New Collection Form -->
+                <!-- SECTION 1: Add/Edit Collection Form -->
                 <div id="addTab" class="tab-content">
                     <h2 id="formTitle">Add Collection Entry</h2>
                     <input type="hidden" id="editKey" value="">
+                    <input type="hidden" id="draftIdField" value=""> <!-- Tracks active local draft ID -->
                     
                     <div class="form-group">
                         <label>Customer Name:</label>
@@ -516,166 +387,98 @@
                         <input type="date" id="dateSelect">
                     </div>
 
-                    <!-- MULTIPLE INVOICES CONTAINER -->
                     <label style="margin-top: 15px; color: #2c3e50;">Invoice Details:</label>
-                    <div class="dynamic-inputs-container" id="invoiceInputsContainer">
-                        <!-- Invoice Rows dynamic induction -->
-                    </div>
+                    <div class="dynamic-inputs-container" id="invoiceInputsContainer"></div>
                     <button type="button" class="btn-add-row" id="btnAddRow" onclick="addInvoiceRow('', '')">➕ Add Another Invoice</button>
 
-                    <!-- CUSTOMER RETURNS ENTRY -->
                     <div class="form-group" style="margin-top: 25px; background-color: #fdf2e9; padding: 15px; border-radius: 6px; border: 1px solid #fadbd8;">
                         <label style="color: #e67e22;">Customer Return Goods Value (LKR) - Optional:</label>
                         <input type="number" id="returnAmount" placeholder="0.00" value="0" oninput="calculateLiveFormTotals()">
-                        <small style="color: #7f8c8d; display: block; margin-top: 4px;">This amount will be automatically deducted from the total value.</small>
                     </div>
 
-                    <!-- MULTIPLE CHEQUES CONTAINER (Only shows if Cheque is selected) -->
                     <div id="chequeSectionContainer" style="display: none; margin-top: 20px;">
                         <label style="color: #e67e22;">Cheque Details (Breakdown):</label>
-                        <div class="dynamic-inputs-container cheque-box-container" id="chequeInputsContainer">
-                            <!-- Cheque Rows dynamic induction -->
-                        </div>
+                        <div class="dynamic-inputs-container cheque-box-container" id="chequeInputsContainer"></div>
                         <button type="button" class="btn-add-row btn-add-cheque" id="btnAddChequeRow" onclick="addChequeRow('', '')">➕ Add Another Cheque</button>
                     </div>
 
-                    <!-- LIVE CALCULATING PRE-SAVE SUMMARY WORKSPACE PANEL -->
                     <div class="live-summary-panel">
                         <div class="live-summary-title">📊 Pre-Save Calculation Breakdown</div>
-                        <div class="live-summary-row">
-                            <span>Gross Invoice Total:</span>
-                            <span>LKR <span id="liveGrossInvoiceTotal">0.00</span></span>
-                        </div>
-                        <div class="live-summary-row" style="color: #c0392b;">
-                            <span>(-) Customer Return Deductions:</span>
-                            <span>LKR <span id="liveReturnDeduction">0.00</span></span>
-                        </div>
-                        <div class="live-summary-row" style="font-weight: bold; color: #2c3e50; border-top: 1px solid #d4e6f1; padding-top: 4px;">
-                            <span>Net Payable Amount:</span>
-                            <span>LKR <span id="liveNetPayableAmount">0.00</span></span>
-                        </div>
-                        <!-- NEW PAYMENT MODE LIVE BREAKDOWN ROW -->
-                        <div class="live-summary-row final-net" id="livePaymentModeRow">
-                            <span>Selected Mode Allocation (<span id="livePaymentModeLabel">Cash</span>):</span>
-                            <span>LKR <span id="livePaymentModeTotal">0.00</span></span>
-                        </div>
+                        <div class="live-summary-row"><span>Gross Invoice Total:</span><span>LKR <span id="liveGrossInvoiceTotal">0.00</span></span></div>
+                        <div class="live-summary-row" style="color: #c0392b;"><span>(-) Customer Return Deductions:</span><span>LKR <span id="liveReturnDeduction">0.00</span></span></div>
+                        <div class="live-summary-row" style="font-weight: bold; color: #2c3e50; border-top: 1px solid #d4e6f1; padding-top: 4px;"><span>Net Payable Amount:</span><span>LKR <span id="liveNetPayableAmount">0.00</span></span></div>
+                        <div class="live-summary-row final-net" id="livePaymentModeRow"><span>Selected Mode Allocation (<span id="livePaymentModeLabel">Cash</span>):</span><span>LKR <span id="livePaymentModeTotal">0.00</span></span></div>
                     </div>
 
-                    <button class="action-btn" id="btnSave" onclick="confirmAndSave()">Save Collection</button>
+                    <button class="action-btn" id="btnSave" onclick="confirmAndSave()">Save & Upload to Cloud</button>
+                    <button class="action-btn btn-draft" id="btnSaveDraft" onclick="saveAsDraft()">💾 Save as Draft (Katu Satahan)</button>
+                </div>
+
+                <!-- NEW SECTION: Drafts View Management Layout -->
+                <div id="draftTab" class="tab-content">
+                    <h2>📂 Saved Drafts (Local Temporary Folders)</h2>
+                    <p style="color: #7f8c8d;">These collections are temporarily saved on your device and are not uploaded to the cloud.</p>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Customer Name</th>
+                                    <th>Invoices</th>
+                                    <th>Payment Mode</th>
+                                    <th>Net Balance (LKR)</th>
+                                    <th class="action-col" style="width:180px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="draftTableBody"></tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <!-- SECTION 2: Search Collection View -->
                 <div id="searchTab" class="tab-content">
                     <h2>Collection Records Search</h2>
-                    
                     <div class="search-box">
-                        <div class="date-filter-row">
-                            <div class="form-group">
-                                <label style="color: #2980b9;">From Date:</label>
-                                <input type="date" id="filterFromDate" onchange="filterData()">
-                            </div>
-                            <div class="form-group">
-                                <label style="color: #2980b9;">To Date:</label>
-                                <input type="date" id="filterToDate" onchange="filterData()">
-                            </div>
+                        <div class="date-filter-row" style="display:flex; gap:15px;">
+                            <div class="form-group" style="flex:1;"><label>From Date:</label><input type="date" id="filterFromDate" onchange="filterData()"></div>
+                            <div class="form-group" style="flex:1;"><label>To Date:</label><input type="date" id="filterToDate" onchange="filterData()"></div>
                         </div>
-                        
-                        <div class="form-group" style="margin-top: 15px;">
-                            <label style="color: #2980b9;">Filter by Name, Invoice, Payment Mode or Cheque:</label>
-                            <input type="text" id="searchInput" onkeyup="filterData()" placeholder="Type text here to filter...">
-                        </div>
+                        <div class="form-group" style="margin-top: 15px;"><label>Filter Search:</label><input type="text" id="searchInput" onkeyup="filterData()" placeholder="Type here to search..."></div>
                     </div>
-
                     <div class="table-responsive">
                         <table id="collectionTable">
                             <thead>
                                 <tr>
-                                    <th class="tick-col"><input type="checkbox" id="selectAllBox" onclick="toggleSelectAll(this)"></th>
-                                    <th>Date</th>
-                                    <th>Customer Name</th>
-                                    <th>Invoice No</th>
-                                    <th>Payment Mode</th>
-                                    <th>Cheque Details</th>
-                                    <th>Total (LKR)</th>
-                                    <th>Return (LKR)</th>
-                                    <th>Net Balance (LKR)</th>
-                                    <th class="action-col">Actions</th>
+                                    <th style="width:50px;"><input type="checkbox" id="selectAllBox" onclick="toggleSelectAll(this)"></th>
+                                    <th>Date</th><th>Customer Name</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Total</th><th>Return</th><th>Net Balance</th><th style="width:140px;">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="tableBody">
-                                <tr><td colspan="10" class="loading-text">Loading data from cloud...</td></tr>
-                            </tbody>
+                            <tbody id="tableBody"></tbody>
                             <tfoot>
-                                <tr class="total-row">
-                                    <td colspan="8" style="text-align: right;" id="totalLabelCell">Selected Net Total Balance:</td>
-                                    <td id="totalAmount" colspan="2">0.00</td>
-                                </tr>
+                                <tr class="total-row"><td colspan="8" style="text-align: right;" id="totalLabelCell">Selected Net Total Balance:</td><td id="totalAmount" colspan="2">0.00</td></tr>
                             </tfoot>
                         </table>
                     </div>
-                    
-                    <button class="action-btn export-btn" onclick="exportToPDF()">Print / Save Selected as PDF</button>
+                    <button class="action-btn export-btn" onclick="exportToPDF()">Print Selected as PDF</button>
                 </div>
 
                 <!-- SECTION 3: Customer Report View -->
                 <div id="reportTab" class="tab-content">
                     <h2>Customer Payment Statement Report</h2>
-                    
-                    <div class="search-box report-filter-section">
-                        <div class="form-group">
-                            <label style="color: #2980b9; font-size: 16px;">Select Customer:</label>
-                            <select id="reportCustomerSelect" onchange="generateCustomerReport()">
-                                <option value="">-- Choose a Customer --</option>
-                            </select>
-                        </div>
-
-                        <!-- NEW ADVANCED REPORT FILTER CONTROLS -->
-                        <div class="date-filter-row" style="margin-top: 15px;">
-                            <div class="form-group">
-                                <label style="color: #2980b9;">Filter From Date:</label>
-                                <input type="date" id="reportFromDate" onchange="generateCustomerReport()">
-                            </div>
-                            <div class="form-group">
-                                <label style="color: #2980b9;">Filter To Date:</label>
-                                <input type="date" id="reportToDate" onchange="generateCustomerReport()">
-                            </div>
-                        </div>
-                        
-                        <div class="form-group" style="margin-top: 15px;">
-                            <label style="color: #2980b9;">Filter by Invoice, Payment Mode or Cheque inside Customer:</label>
-                            <input type="text" id="reportSearchInput" onkeyup="generateCustomerReport()" placeholder="Search invoice, mode, cheque number...">
-                        </div>
+                    <div class="search-box">
+                        <div class="form-group"><label>Select Customer:</label><select id="reportCustomerSelect" onchange="generateCustomerReport()"><option value="">-- Choose a Customer --</option></select></div>
                     </div>
-
                     <div id="reportPrintArea">
-                        <h3 id="reportTitleHeader" style="color: #2c3e50; margin-bottom: 15px; display:none;">Statement of Accounts</h3>
+                        <h3 id="reportTitleHeader" style="display:none;">Statement of Accounts</h3>
                         <div class="table-responsive">
                             <table id="reportTable">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Invoice No</th>
-                                        <th>Payment Mode</th>
-                                        <th>Cheque Details</th>
-                                        <th>Gross Amount (LKR)</th>
-                                        <th>Return (LKR)</th>
-                                        <th>Net Paid (LKR)</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="reportTableBody">
-                                    <tr><td colspan="7" class="loading-text">Please select a customer from dropdown above to load history.</td></tr>
-                                </tbody>
-                                <tfoot>
-                                    <tr class="total-row">
-                                        <td colspan="6" style="text-align: right;">Cumulative Total Net Paid Amount:</td>
-                                        <td id="reportTotalPaidAmount">0.00</td>
-                                    </tr>
-                                </tfoot>
+                                <thead><tr><th>Date</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Gross Amount</th><th>Return</th><th>Net Paid</th></tr></thead>
+                                <tbody id="reportTableBody"></tbody>
+                                <tfoot><tr class="total-row"><td colspan="6" style="text-align: right;">Cumulative Total Net Paid:</td><td id="reportTotalPaidAmount">0.00</td></tr></tfoot>
                             </table>
                         </div>
                     </div>
-                    
-                    <button class="action-btn export-btn print-report-btn" onclick="window.print()">Print This Customer Statement</button>
+                    <button class="action-btn export-btn" onclick="window.print()">Print Customer Statement</button>
                 </div>
 
             </div>
@@ -683,7 +486,6 @@
     </div>
 
 <script>
-    // Raeez's Firebase Config Connected
     const firebaseConfig = {
         apiKey: "AIzaSyAoCX7EktWnMbJFP5K8SvWonDEU0JXcknY",
         authDomain: "royal-ph-rz.firebaseapp.com",
@@ -693,26 +495,24 @@
         appId: "1:731106257281:web:c96a9b88773a1371f2e080"
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database().ref("cashCollections");
 
-    let collections = []; 
-    let selectedKeys = []; 
-    let currentlyFilteredKeys = []; 
+    let collections = []; let selectedKeys = []; let currentlyFilteredKeys = [];
 
-    document.getElementById('dateSelect').valueAsDate = new Date();
+    // Core Init Launcher
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById('dateSelect').valueAsDate = new Date();
+        renderDraftsList();
+    });
 
     function toggleChequeInput() {
         const mode = document.getElementById('paymentMode').value;
         const chequeSection = document.getElementById('chequeSectionContainer');
         const chequeContainer = document.getElementById('chequeInputsContainer');
-        
         if(mode === 'Cheque') {
             chequeSection.style.display = 'block';
-            if(chequeContainer.children.length === 0) {
-                addChequeRow('', '');
-            }
+            if(chequeContainer.children.length === 0) addChequeRow('', '');
         } else {
             chequeSection.style.display = 'none';
             chequeContainer.innerHTML = '';
@@ -723,80 +523,40 @@
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebarMenu');
         const mainContent = document.getElementById('mainContentArea');
-        
-        if (window.innerWidth <= 768) {
-            sidebar.classList.toggle('open');
-        } else {
-            sidebar.classList.toggle('closed');
-            mainContent.classList.toggle('fullscreen');
-        }
+        sidebar.classList.toggle('open');
     }
 
-    function closeSidebarOnMobile() {
-        if (window.innerWidth <= 768) {
-            document.getElementById('sidebarMenu').classList.remove('open');
-        }
-    }
-
-    // Listen for Realtime Changes from Firebase Cloud
     db.on("value", (snapshot) => {
         collections = [];
         snapshot.forEach((childSnapshot) => {
-            collections.push({
-                key: childSnapshot.key,
-                ...childSnapshot.val()
-            });
+            collections.push({ key: childSnapshot.key, ...childSnapshot.val() });
         });
-        
         populateCustomerDropdown();
-
-        if(document.getElementById('searchTab').classList.contains('active') || collections.length >= 0) {
-            filterData();
-        }
-        if(document.getElementById('reportTab').classList.contains('active')) {
-            generateCustomerReport();
-        }
+        if(document.getElementById('searchTab').classList.contains('active')) filterData();
+        if(document.getElementById('reportTab').classList.contains('active')) generateCustomerReport();
     });
 
-    // Extract Unique Customer Names to populate Report Select Dropdown List
     function populateCustomerDropdown() {
         const dropdown = document.getElementById('reportCustomerSelect');
         const currentSelection = dropdown.value;
-        
-        // Get sorted list of unique names
         let uniqueCustomers = [];
         collections.forEach(item => {
-            if(item.customer && !uniqueCustomers.includes(item.customer.trim())) {
-                uniqueCustomers.push(item.customer.trim());
-            }
+            if(item.customer && !uniqueCustomers.includes(item.customer.trim())) uniqueCustomers.push(item.customer.trim());
         });
         uniqueCustomers.sort();
-
         dropdown.innerHTML = '<option value="">-- Choose a Customer --</option>';
-        uniqueCustomers.forEach(name => {
-            dropdown.innerHTML += `<option value="${name}">${name}</option>`;
-        });
-
-        // Restore active selection if it still exists
-        if(uniqueCustomers.includes(currentSelection)) {
-            dropdown.value = currentSelection;
-        }
+        uniqueCustomers.forEach(name => { dropdown.innerHTML += `<option value="${name}">${name}</option>`; });
+        if(uniqueCustomers.includes(currentSelection)) dropdown.value = currentSelection;
     }
 
     function handleLogin() {
         const user = document.getElementById('usernameInput').value;
         const pass = document.getElementById('passwordInput').value;
-
         if (user.toLowerCase() === "raeez" && pass === "1234") {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('dashboardLayout').style.display = 'block';
-            document.getElementById('usernameInput').value = '';
-            document.getElementById('passwordInput').value = '';
-            document.getElementById('sidebarMenu').classList.remove('closed');
-            document.getElementById('sidebarMenu').classList.remove('open');
-            document.getElementById('mainContentArea').classList.remove('fullscreen');
         } else {
-            alert("Invalid Username or Password! Please try again.");
+            alert("Invalid Username or Password!");
         }
     }
 
@@ -804,61 +564,40 @@
         document.getElementById('dashboardLayout').style.display = 'none';
         document.getElementById('loginScreen').style.display = 'flex';
         goHome(document.getElementById('btnHomeMenu'));
-        selectedKeys = [];
-        resetForm();
     }
 
     function goHome(btnElement) {
         document.getElementById('welcomeView').style.display = 'block';
         document.getElementById('workspaceContainer').style.display = 'none';
-        
-        document.querySelectorAll('.tab-content').forEach(function(tab) { tab.classList.remove('active'); });
-        document.querySelectorAll('.menu-btn').forEach(function(btn) { btn.classList.remove('active'); });
-        
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
         resetForm();
-        closeSidebarOnMobile();
     }
 
     function switchView(tabId, btnElement) {
         document.getElementById('welcomeView').style.display = 'none';
         document.getElementById('workspaceContainer').style.display = 'block';
-
-        document.querySelectorAll('.tab-content').forEach(function(tab) { tab.classList.remove('active'); });
-        document.querySelectorAll('.menu-btn').forEach(function(btn) { btn.classList.remove('active'); });
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
         
         document.getElementById(tabId).classList.add('active');
         btnElement.classList.add('active');
         
-        if(tabId === 'addTab' && document.getElementById('invoiceInputsContainer').children.length === 0) {
-            addInvoiceRow('', '');
-        }
-        if(tabId === 'searchTab') {
-            filterData(); 
-        }
-        if(tabId === 'reportTab') {
-            generateCustomerReport();
-        }
-        closeSidebarOnMobile();
+        if(tabId === 'addTab' && document.getElementById('invoiceInputsContainer').children.length === 0) addInvoiceRow('', '');
+        if(tabId === 'draftTab') renderDraftsList();
+        if(tabId === 'searchTab') filterData();
     }
-    
+
     function addInvoiceRow(invValue = '', amtValue = '') {
         const container = document.getElementById('invoiceInputsContainer');
         const rowId = 'inv-row-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
-        
         const rowHtml = `
             <div class="dynamic-row" id="${rowId}">
-                <div class="form-group">
-                    <label>Invoice Number:</label>
-                    <input type="text" class="invoice-num-field" placeholder="Enter invoice number" value="${invValue}">
-                </div>
-                <div class="form-group">
-                    <label>Amount (LKR):</label>
-                    <input type="number" class="invoice-amt-field" placeholder="0.00" value="${amtValue}" oninput="calculateLiveFormTotals()">
-                </div>
+                <div class="form-group"><label>Invoice Number:</label><input type="text" class="invoice-num-field" value="${invValue}"></div>
+                <div class="form-group"><label>Amount (LKR):</label><input type="number" class="invoice-amt-field" value="${amtValue}" oninput="calculateLiveFormTotals()"></div>
                 <button type="button" class="btn-remove-row" onclick="removeDynamicRow('${rowId}', 'invoice')">❌</button>
-            </div>
-        `;
+            </div>`;
         container.insertAdjacentHTML('beforeend', rowHtml);
         manageRemoveButtons('invoice');
         calculateLiveFormTotals();
@@ -867,20 +606,12 @@
     function addChequeRow(chqNum = '', chqAmt = '') {
         const container = document.getElementById('chequeInputsContainer');
         const rowId = 'chq-row-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
-        
         const rowHtml = `
             <div class="dynamic-row" id="${rowId}">
-                <div class="form-group">
-                    <label>Cheque Number:</label>
-                    <input type="text" class="cheque-num-field" placeholder="Enter cheque number" value="${chqNum}">
-                </div>
-                <div class="form-group">
-                    <label>Cheque Amount (LKR):</label>
-                    <input type="number" class="cheque-amt-field" placeholder="0.00" value="${chqAmt}" oninput="calculateLiveFormTotals()">
-                </div>
+                <div class="form-group"><label>Cheque Number:</label><input type="text" class="cheque-num-field" value="${chqNum}"></div>
+                <div class="form-group"><label>Cheque Amount (LKR):</label><input type="number" class="cheque-amt-field" value="${chqAmt}" oninput="calculateLiveFormTotals()"></div>
                 <button type="button" class="btn-remove-row" onclick="removeDynamicRow('${rowId}', 'cheque')">❌</button>
-            </div>
-        `;
+            </div>`;
         container.insertAdjacentHTML('beforeend', rowHtml);
         manageRemoveButtons('cheque');
         calculateLiveFormTotals();
@@ -896,23 +627,15 @@
     function manageRemoveButtons(type) {
         const containerId = type === 'invoice' ? 'invoiceInputsContainer' : 'chequeInputsContainer';
         const rows = document.getElementById(containerId).querySelectorAll('.dynamic-row');
-        if(rows.length <= 1) {
-            if(rows[0]) rows[0].querySelector('.btn-remove-row').style.display = 'none';
-        } else {
-            rows.forEach(r => r.querySelector('.btn-remove-row').style.display = 'block');
-        }
+        if(rows.length <= 1 && rows[0]) rows[0].querySelector('.btn-remove-row').style.display = 'none';
+        else rows.forEach(r => r.querySelector('.btn-remove-row').style.display = 'block');
     }
 
-    // UPDATED LIVE PRE-SAVE FORM CALCULATION WITH PAYMENT MODE TOTAL LOGIC
     function calculateLiveFormTotals() {
         const invoiceRows = document.querySelectorAll('#invoiceInputsContainer .dynamic-row');
         let grossTotal = 0;
+        invoiceRows.forEach(row => { grossTotal += parseFloat(row.querySelector('.invoice-amt-field').value || 0); });
         
-        invoiceRows.forEach(row => {
-            const amt = parseFloat(row.querySelector('.invoice-amt-field').value || 0);
-            grossTotal += amt;
-        });
-
         const returnAmt = parseFloat(document.getElementById('returnAmount').value || 0);
         const netPayable = grossTotal - returnAmt;
 
@@ -920,7 +643,6 @@
         document.getElementById('liveReturnDeduction').innerText = returnAmt.toLocaleString('en-US', {minimumFractionDigits: 2});
         document.getElementById('liveNetPayableAmount').innerText = netPayable.toLocaleString('en-US', {minimumFractionDigits: 2});
 
-        // Mode specific allocation display logic
         const mode = document.getElementById('paymentMode').value;
         document.getElementById('livePaymentModeLabel').innerText = mode;
 
@@ -928,25 +650,237 @@
         const modeRowElement = document.getElementById('livePaymentModeRow');
 
         if(mode === 'Cheque') {
-            const chequeRows = document.querySelectorAll('#chequeInputsContainer .dynamic-row');
-            chequeRows.forEach(row => {
-                const amt = parseFloat(row.querySelector('.cheque-amt-field').value || 0);
-                modeAllocatedTotal += amt;
-            });
-            
-            // Check matching validation colors
-            if(Math.abs(modeAllocatedTotal - netPayable) < 0.01 && netPayable > 0) {
-                modeRowElement.style.color = '#27ae60'; // Green matches perfectly
-            } else {
-                modeRowElement.style.color = '#c0392b'; // Red mismatch alert
-            }
+            document.querySelectorAll('#chequeInputsContainer .dynamic-row').forEach(row => { modeAllocatedTotal += parseFloat(row.querySelector('.cheque-amt-field').value || 0); });
+            modeRowElement.style.color = (Math.abs(modeAllocatedTotal - netPayable) < 0.01 && netPayable > 0) ? '#27ae60' : '#c0392b';
         } else {
-            // Cash or Online automatically reflects the exact net balance
             modeAllocatedTotal = netPayable;
             modeRowElement.style.color = '#27ae60';
         }
-
         document.getElementById('livePaymentModeTotal').innerText = modeAllocatedTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
+    }
+
+    /* -------------------------------------------------------------
+       LOCAL STORAGE DRAFT MANAGEMENT ENGINE 
+    ------------------------------------------------------------- */
+    function getLocalDrafts() {
+        return JSON.parse(localStorage.getItem("raeez_drafts") || "[]");
+    }
+
+    function saveLocalDrafts(drafts) {
+        localStorage.setItem("raeez_drafts", JSON.stringify(drafts));
+        renderDraftsList();
+    }
+
+    function saveAsDraft() {
+        const customer = document.getElementById('customerName').value || "Unnamed Customer";
+        const mode = document.getElementById('paymentMode').value;
+        const date = document.getElementById('dateSelect').value;
+        const returnAmount = parseFloat(document.getElementById('returnAmount').value || 0);
+        const draftId = document.getElementById('draftIdField').value;
+
+        let invoicesList = [];
+        document.querySelectorAll('#invoiceInputsContainer .dynamic-row').forEach(row => {
+            invoicesList.push({
+                invoice: row.querySelector('.invoice-num-field').value,
+                amount: row.querySelector('.invoice-amt-field').value
+            });
+        });
+
+        let chequesList = [];
+        if(mode === 'Cheque') {
+            document.querySelectorAll('#chequeInputsContainer .dynamic-row').forEach(row => {
+                chequesList.push({
+                    num: row.querySelector('.cheque-num-field').value,
+                    amt: row.querySelector('.cheque-amt-field').value
+                });
+            });
+        }
+
+        let drafts = getLocalDrafts();
+        const draftData = { customer, mode, date, returnAmount, invoicesList, chequesList, lastUpdated: Date.now() };
+
+        if(draftId) {
+            // Update existing local draft slot
+            const idx = drafts.findIndex(d => d.id == draftId);
+            if(idx !== -1) {
+                draftData.id = draftId;
+                drafts[idx] = draftData;
+            }
+        } else {
+            // Setup new identifier slot
+            draftData.id = 'draft-' + Date.now();
+            drafts.push(draftData);
+        }
+
+        saveLocalDrafts(drafts);
+        alert("Collection saved safely as a Draft!");
+        resetForm();
+        switchView('draftTab', document.getElementById('btnDraftMenu'));
+    }
+
+    function renderDraftsList() {
+        const drafts = getLocalDrafts();
+        const tbody = document.getElementById('draftTableBody');
+        const badge = document.getElementById('draftCountBadge');
+        
+        if(drafts.length > 0) {
+            badge.innerText = drafts.length;
+            badge.style.display = 'inline-block';
+        } else {
+            badge.style.display = 'none';
+        }
+
+        tbody.innerHTML = '';
+        if(drafts.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="loading-text">No active drafts found on this device.</td></tr>';
+            return;
+        }
+
+        drafts.sort((a,b) => b.lastUpdated - a.lastUpdated).forEach(d => {
+            let invNumbers = d.invoicesList.map(i => i.invoice || '?').join(', ');
+            let gross = d.invoicesList.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
+            let net = gross - parseFloat(d.returnAmount || 0);
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${d.date}</td>
+                    <td><b>${d.customer}</b></td>
+                    <td>${invNumbers}</td>
+                    <td>${d.mode}</td>
+                    <td style="font-weight:bold; color:#e67e22;">${net.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+                    <td>
+                        <button class="btn-edit" onclick="loadDraftForEditing('${d.id}')">Open / Edit</button>
+                        <button class="btn-delete" onclick="deleteDraft('${d.id}')">Delete</button>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    function loadDraftForEditing(id) {
+        const drafts = getLocalDrafts();
+        const d = drafts.find(item => item.id == id);
+        if(!d) return;
+
+        resetForm();
+        document.getElementById('customerName').value = d.customer;
+        document.getElementById('paymentMode').value = d.mode;
+        document.getElementById('dateSelect').value = d.date;
+        document.getElementById('returnAmount').value = d.returnAmount;
+        document.getElementById('draftIdField').value = d.id;
+
+        document.getElementById('invoiceInputsContainer').innerHTML = '';
+        if(d.invoicesList && d.invoicesList.length > 0) {
+            d.invoicesList.forEach(i => addInvoiceRow(i.invoice, i.amount));
+        } else {
+            addInvoiceRow('', '');
+        }
+
+        if(d.mode === 'Cheque') {
+            document.getElementById('chequeSectionContainer').style.display = 'block';
+            document.getElementById('chequeInputsContainer').innerHTML = '';
+            if(d.chequesList && d.chequesList.length > 0) {
+                d.chequesList.forEach(c => addChequeRow(c.num, c.amt));
+            } else {
+                addChequeRow('', '');
+            }
+        }
+
+        document.getElementById('formTitle').innerText = "Edit Draft Entry";
+        switchView('addTab', document.getElementById('btnAddMenu'));
+        calculateLiveFormTotals();
+    }
+
+    function deleteDraft(id) {
+        if(confirm("Are you sure you want to completely delete this draft?")) {
+            let drafts = getLocalDrafts().filter(d => d.id != id);
+            saveLocalDrafts(drafts);
+        }
+    }
+
+    /* -------------------------------------------------------------
+       FINALIZE UPLOAD WORKFLOW ENGINE 
+    ------------------------------------------------------------- */
+    function confirmAndSave() {
+        const customer = document.getElementById('customerName').value;
+        const mode = document.getElementById('paymentMode').value;
+        const date = document.getElementById('dateSelect').value;
+        const editKey = document.getElementById('editKey').value;
+        const localDraftId = document.getElementById('draftIdField').value;
+        const returnAmount = parseFloat(document.getElementById('returnAmount').value || 0);
+        const invoiceRows = document.querySelectorAll('#invoiceInputsContainer .dynamic-row');
+
+        if(!customer || !date || invoiceRows.length === 0) {
+            alert("Please fill customer details and at least one invoice.");
+            return;
+        }
+
+        let invoicesValid = true; let invoiceGrossTotal = 0;
+        invoiceRows.forEach(row => {
+            const invNum = row.querySelector('.invoice-num-field').value;
+            const invAmt = row.querySelector('.invoice-amt-field').value;
+            if(!invNum || !invAmt) invoicesValid = false;
+            else invoiceGrossTotal += parseFloat(invAmt);
+        });
+        if(!invoicesValid) { alert("Please fill all invoice numbers and amounts."); return; }
+
+        let chequesList = [];
+        if(mode === 'Cheque') {
+            let chqValid = true; let totalChequeValue = 0;
+            document.querySelectorAll('#chequeInputsContainer .dynamic-row').forEach(row => {
+                const num = row.querySelector('.cheque-num-field').value;
+                const amt = row.querySelector('.cheque-amt-field').value;
+                if(!num || !amt) chqValid = false;
+                else { chequesList.push({ num, amt }); totalChequeValue += parseFloat(amt); }
+            });
+            if(!chqValid || chequesList.length === 0) { alert("Please complete Cheque details."); return; }
+            
+            const requiredNet = invoiceGrossTotal - returnAmount;
+            if (Math.abs(totalChequeValue - requiredNet) > 0.01) {
+                alert(`Amount Mismatch! Net Payable: LKR ${requiredNet.toFixed(2)} vs Cheque: LKR ${totalChequeValue.toFixed(2)}`);
+                return;
+            }
+        }
+
+        if (confirm("Do you want to upload this data permanently to the cloud?")) {
+            if (!editKey) {
+                let promises = [];
+                invoiceRows.forEach((row, index) => {
+                    const assignedReturn = (index === 0) ? returnAmount : 0;
+                    let dataObject = {
+                        customer,
+                        invoice: row.querySelector('.invoice-num-field').value,
+                        amount: row.querySelector('.invoice-amt-field').value,
+                        mode, date, returnAmount: assignedReturn
+                    };
+                    if(mode === 'Cheque') dataObject.chequesList = chequesList;
+                    promises.push(db.push(dataObject));
+                });
+                
+                Promise.all(promises).then(() => {
+                    alert("Collection uploaded safely to cloud!");
+                    // If it was a draft, clear it from device storage
+                    if(localDraftId) {
+                        let drafts = getLocalDrafts().filter(d => d.id != localDraftId);
+                        saveLocalDrafts(drafts);
+                    }
+                    resetForm();
+                    switchView('searchTab', document.getElementById('btnSearchMenu'));
+                });
+            } else {
+                // Regular Cloud Edit Mode update pathway logic
+                let updateData = {
+                    customer, date, mode, returnAmount,
+                    invoice: invoiceRows[0].querySelector('.invoice-num-field').value,
+                    amount: invoiceRows[0].querySelector('.invoice-amt-field').value
+                };
+                if(mode === 'Cheque') updateData.chequesList = chequesList;
+                db.child(editKey).set(updateData).then(() => {
+                    alert("Cloud entry updated!");
+                    resetForm();
+                    switchView('searchTab', document.getElementById('btnSearchMenu'));
+                });
+            }
+        }
     }
 
     function filterData() {
@@ -954,219 +888,38 @@
         const fromDate = document.getElementById('filterFromDate').value;
         const toDate = document.getElementById('filterToDate').value;
         const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-        
-        currentlyFilteredKeys = [];
+        tbody.innerHTML = ''; currentlyFilteredKeys = [];
 
-        if (collections.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" class="loading-text">No records found or still loading...</td></tr>';
-            calculateTotal();
-            return;
-        }
-
-        collections.forEach(function(item) {
-            const modeStr = item.mode ? item.mode.toLowerCase() : 'cash';
-            
-            // Format Cheques presentation
-            let chequeDisplayHtml = '-';
-            let chequeSearchText = '';
-            if(item.chequesList && item.chequesList.length > 0) {
-                chequeDisplayHtml = item.chequesList.map(c => `• No: <b>${c.num}</b> (LKR ${parseFloat(c.amt).toLocaleString()})`).join('<br>');
-                chequeSearchText = item.chequesList.map(c => c.num + ' ' + c.amt).join(' ');
-            } else if(item.cheque) { 
-                chequeDisplayHtml = `No: ${item.cheque}`;
-                chequeSearchText = item.cheque;
-            }
-
-            const returnVal = parseFloat(item.returnAmount || 0);
-            const totalVal = parseFloat(item.amount || 0);
-            const netBalance = totalVal - returnVal;
-
-            let matchesDate = true;
-            if (fromDate && item.date < fromDate) matchesDate = false;
-            if (toDate && item.date > toDate) matchesDate = false;
-
-            let matchesText = (
-                item.customer.toLowerCase().includes(query) || 
-                item.invoice.toLowerCase().includes(query) || 
-                modeStr.includes(query) ||
-                chequeSearchText.toLowerCase().includes(query)
-            );
+        collections.forEach(item => {
+            let chequeSearchText = item.chequesList ? item.chequesList.map(c => c.num).join(' ') : (item.cheque || '');
+            let matchesDate = (!fromDate || item.date >= fromDate) && (!toDate || item.date <= toDate);
+            let matchesText = item.customer.toLowerCase().includes(query) || item.invoice.toLowerCase().includes(query) || chequeSearchText.toLowerCase().includes(query);
 
             if (matchesDate && matchesText) {
                 currentlyFilteredKeys.push(item.key);
-                const isChecked = selectedKeys.includes(item.key) ? 'checked' : '';
-                const rowClass = selectedKeys.includes(item.key) ? 'selected-row' : '';
-                const displayMode = item.mode ? item.mode : 'Cash';
+                let isChecked = selectedKeys.includes(item.key) ? 'checked' : '';
+                let net = parseFloat(item.amount||0) - parseFloat(item.returnAmount||0);
+                let chqHtml = item.chequesList ? item.chequesList.map(c => `• ${c.num} (${parseFloat(c.amt).toLocaleString()})`).join('<br>') : '-';
 
-                let row = `<tr id="row-${item.key}" class="${rowClass}">
-                    <td class="tick-col">
-                        <input type="checkbox" class="row-checkbox" data-key="${item.key}" ${isChecked} onclick="toggleSelect('${item.key}', this)">
-                    </td>
-                    <td>${item.date}</td>
-                    <td>${item.customer}</td>
-                    <td>${item.invoice}</td>
-                    <td><b>${displayMode}</b></td>
-                    <td>${chequeDisplayHtml}</td>
-                    <td>${totalVal.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                    <td style="color: #e67e22; font-weight: 500;">${returnVal > 0 ? returnVal.toLocaleString('en-US', {minimumFractionDigits: 2}) : '0.00'}</td>
-                    <td style="color: #27ae60; font-weight: bold;">${netBalance.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                    <td class="action-col">
-                        <button class="btn-edit" onclick="editRecord('${item.key}')">Edit</button>
-                        <button class="btn-delete" onclick="deleteRecord('${item.key}')">Delete</button>
-                    </td>
-                </tr>`;
-                tbody.innerHTML += row;
-            }
-        });
-        
-        if(currentlyFilteredKeys.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="10" class="loading-text">No data matches your filter criteria.</td></tr>';
-        }
-        
-        updateSelectAllBoxState();
-        calculateTotal();
-    }
-
-    function generateCustomerReport() {
-        const selectedCustomer = document.getElementById('reportCustomerSelect').value;
-        const fromDate = document.getElementById('reportFromDate').value;
-        const toDate = document.getElementById('reportToDate').value;
-        const query = document.getElementById('reportSearchInput').value.toLowerCase();
-        
-        const reportTbody = document.getElementById('reportTableBody');
-        const headerTitle = document.getElementById('reportTitleHeader');
-        
-        reportTbody.innerHTML = '';
-        let cumulativeNetTotal = 0;
-
-        if(!selectedCustomer) {
-            reportTbody.innerHTML = '<tr><td colspan="7" class="loading-text">Please select a customer from dropdown above to load history.</td></tr>';
-            document.getElementById('reportTotalPaidAmount').innerText = "0.00";
-            headerTitle.style.display = 'none';
-            return;
-        }
-
-        headerTitle.innerText = `Payment History Ledger Report - ${selectedCustomer}`;
-        headerTitle.style.display = 'block';
-
-        let recordCounter = 0;
-
-        let sortedCollections = [...collections].sort((a,b) => new String(a.date).localeCompare(b.date));
-
-        sortedCollections.forEach(item => {
-            if(item.customer && item.customer.trim() === selectedCustomer.trim()) {
-                
-                const modeStr = item.mode ? item.mode.toLowerCase() : 'cash';
-                let chequeSearchText = '';
-                let chequeDisplayHtml = '-';
-                
-                if(item.chequesList && item.chequesList.length > 0) {
-                    chequeDisplayHtml = item.chequesList.map(c => `• No: ${c.num} (LKR ${parseFloat(c.amt).toLocaleString()})`).join('<br>');
-                    chequeSearchText = item.chequesList.map(c => c.num + ' ' + c.amt).join(' ');
-                } else if(item.cheque) { 
-                    chequeDisplayHtml = `No: ${item.cheque}`;
-                    chequeSearchText = item.cheque;
-                }
-
-                let matchesDate = true;
-                if (fromDate && item.date < fromDate) matchesDate = false;
-                if (toDate && item.date > toDate) matchesDate = false;
-
-                let matchesText = (
-                    item.invoice.toLowerCase().includes(query) || 
-                    modeStr.includes(query) ||
-                    chequeSearchText.toLowerCase().includes(query)
-                );
-
-                if (matchesDate && matchesText) {
-                    recordCounter++;
-
-                    const grossAmt = parseFloat(item.amount || 0);
-                    const retAmt = parseFloat(item.returnAmount || 0);
-                    const netPaid = grossAmt - retAmt;
-                    cumulativeNetTotal += netPaid;
-
-                    let row = `<tr>
-                        <td>${item.date}</td>
-                        <td>${item.invoice}</td>
-                        <td><b>${item.mode ? item.mode : 'Cash'}</b></td>
-                        <td>${chequeDisplayHtml}</td>
-                        <td>${grossAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                        <td style="color: #e67e22;">${retAmt > 0 ? retAmt.toLocaleString('en-US', {minimumFractionDigits: 2}) : '0.00'}</td>
-                        <td style="color: #27ae60; font-weight: bold;">${netPaid.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                tbody.innerHTML += `
+                    <tr id="row-${item.key}" class="${selectedKeys.includes(item.key) ? 'selected-row' : ''}">
+                        <td><input type="checkbox" ${isChecked} onclick="toggleSelect('${item.key}', this)"></td>
+                        <td>${item.date}</td><td>${item.customer}</td><td>${item.invoice}</td><td><b>${item.mode||'Cash'}</b></td>
+                        <td>${chqHtml}</td><td>${parseFloat(item.amount||0).toLocaleString()}</td><td>${parseFloat(item.returnAmount||0).toLocaleString()}</td>
+                        <td style="color:#27ae60; font-weight:bold;">${net.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+                        <td><button class="btn-edit" onclick="editRecord('${item.key}')">Edit</button><button class="btn-delete" onclick="deleteRecord('${item.key}')">Delete</button></td>
                     </tr>`;
-                    reportTbody.innerHTML += row;
-                }
             }
         });
-
-        if(recordCounter === 0) {
-            reportTbody.innerHTML = '<tr><td colspan="7" class="loading-text">No ledger entries detected for this search criteria.</td></tr>';
-        }
-
-        document.getElementById('reportTotalPaidAmount').innerText = cumulativeNetTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
-    }
-
-    function toggleSelectAll(masterCheckbox) {
-        currentlyFilteredKeys.forEach(function(key) {
-            if (masterCheckbox.checked) {
-                if (!selectedKeys.includes(key)) selectedKeys.push(key);
-            } else {
-                selectedKeys = selectedKeys.filter(function(k) { return k !== key; });
-            }
-        });
-        filterData();
-    }
-
-    function updateSelectAllBoxState() {
-        const selectAllBox = document.getElementById('selectAllBox');
-        if (currentlyFilteredKeys.length === 0) {
-            selectAllBox.checked = false;
-            return;
-        }
-        let allChecked = currentlyFilteredKeys.every(key => selectedKeys.includes(key));
-        selectAllBox.checked = allChecked;
-    }
-
-    function toggleSelect(key, checkbox) {
-        const row = document.getElementById(`row-${key}`);
-        if (checkbox.checked) {
-            if (!selectedKeys.includes(key)) {
-                selectedKeys.push(key);
-                if(row) row.classList.add('selected-row');
-            }
-        } else {
-            selectedKeys = selectedKeys.filter(k => k !== key);
-            if(row) row.classList.remove('selected-row');
-        }
-        updateSelectAllBoxState();
         calculateTotal();
-    }
-
-    function calculateTotal() {
-        let totalNet = 0;
-        selectedKeys.forEach(key => {
-            const item = collections.find(c => c.key === key);
-            if(item) {
-                const totalVal = parseFloat(item.amount || 0);
-                const returnVal = parseFloat(item.returnAmount || 0);
-                totalNet += (totalVal - returnVal);
-            }
-        });
-        document.getElementById('totalAmount').innerText = totalNet.toLocaleString('en-US', {minimumFractionDigits: 2});
     }
 
     function editRecord(key) {
-        const adminPass = prompt("Admin Required!\nPlease enter Admin Password to Edit:");
-        if (adminPass !== "1234") {
-            alert("Access Denied! Incorrect Admin Password.");
-            return;
-        }
-
+        if (prompt("Enter Admin Password:") !== "1234") return;
         const item = collections.find(c => c.key === key);
         if(!item) return;
 
+        resetForm();
         document.getElementById('customerName').value = item.customer;
         document.getElementById('paymentMode').value = item.mode || 'Cash';
         document.getElementById('dateSelect').value = item.date;
@@ -1174,171 +927,76 @@
         document.getElementById('editKey').value = key;
 
         document.getElementById('invoiceInputsContainer').innerHTML = '';
-        document.getElementById('chequeInputsContainer').innerHTML = '';
-
         addInvoiceRow(item.invoice, item.amount);
-        document.getElementById('btnAddRow').style.display = 'none'; 
+        document.getElementById('btnAddRow').style.display = 'none';
 
         if(item.mode === 'Cheque') {
             document.getElementById('chequeSectionContainer').style.display = 'block';
-            if(item.chequesList && item.chequesList.length > 0) {
-                item.chequesList.forEach(c => addChequeRow(c.num, c.amt));
-            } else if(item.cheque) {
-                addChequeRow(item.cheque, item.amount);
-            }
+            document.getElementById('chequeInputsContainer').innerHTML = '';
+            if(item.chequesList) item.chequesList.forEach(c => addChequeRow(c.num, c.amt));
             document.getElementById('btnAddChequeRow').style.display = 'none';
-        } else {
-            document.getElementById('chequeSectionContainer').style.display = 'none';
         }
-
-        document.getElementById('formTitle').innerText = "Edit Collection Entry";
-        document.getElementById('btnSave').innerText = "Update & Save";
+        document.getElementById('formTitle').innerText = "Edit Cloud Record Entry";
         switchView('addTab', document.getElementById('btnAddMenu'));
         calculateLiveFormTotals();
     }
 
     function deleteRecord(key) {
-        const adminPass = prompt("Admin Required!\nPlease enter Admin Password to Delete:");
-        if (adminPass !== "1234") {
-            alert("Access Denied! Incorrect Admin Password.");
-            return;
-        }
-
-        if (confirm("Are you sure you want to delete this record permanently?")) {
-            db.child(key).remove()
-                .then(() => {
-                    selectedKeys = selectedKeys.filter(k => k !== key);
-                    alert("Record deleted successfully from cloud!");
-                    filterData();
-                })
-                .catch((error) => alert("Delete failed: " + error.message));
-        }
+        if (prompt("Enter Admin Password:") !== "1234") return;
+        if (confirm("Delete permanently from Cloud?")) db.child(key).remove();
     }
 
-    function confirmAndSave() {
-        const customer = document.getElementById('customerName').value;
-        const mode = document.getElementById('paymentMode').value;
-        const date = document.getElementById('dateSelect').value;
-        const editKey = document.getElementById('editKey').value;
-        const returnAmount = parseFloat(document.getElementById('returnAmount').value || 0);
-        const invoiceRows = document.querySelectorAll('#invoiceInputsContainer .dynamic-row');
+    function generateCustomerReport() {
+        const selected = document.getElementById('reportCustomerSelect').value;
+        const tbody = document.getElementById('reportTableBody');
+        tbody.innerHTML = ''; let total = 0;
 
-        if(!customer || !date || invoiceRows.length === 0) {
-            alert("Please enter customer details and at least one invoice row.");
-            return;
-        }
+        if(!selected) { tbody.innerHTML = '<tr><td colspan="7" class="loading-text">Select customer.</td></tr>'; return; }
+        document.getElementById('reportTitleHeader').innerText = `Report - ${selected}`;
+        document.getElementById('reportTitleHeader').style.display = 'block';
 
-        let invoicesValid = true;
-        let invoiceGrossTotal = 0;
-        invoiceRows.forEach(row => {
-            const invNum = row.querySelector('.invoice-num-field').value;
-            const invAmt = row.querySelector('.invoice-amt-field').value;
-            if(!invNum || !invAmt) {
-                invoicesValid = false;
-            } else {
-                invoiceGrossTotal += parseFloat(invAmt);
-            }
+        collections.filter(c => c.customer === selected).forEach(item => {
+            let net = parseFloat(item.amount||0) - parseFloat(item.returnAmount||0); total += net;
+            let chqHtml = item.chequesList ? item.chequesList.map(c => c.num).join(', ') : '-';
+            tbody.innerHTML += `<tr><td>${item.date}</td><td>${item.invoice}</td><td>${item.mode||'Cash'}</td><td>${chqHtml}</td><td>${parseFloat(item.amount).toLocaleString()}</td><td>${parseFloat(item.returnAmount).toLocaleString()}</td><td style="color:#27ae60; font-weight:bold;">${net.toLocaleString()}</td></tr>`;
         });
-        if(!invoicesValid) {
-            alert("Please fill all invoice numbers and amounts.");
-            return;
-        }
+        document.getElementById('reportTotalPaidAmount').innerText = total.toLocaleString('en-US',{minimumFractionDigits:2});
+    }
 
-        let chequesList = [];
-        if(mode === 'Cheque') {
-            const chqRows = document.querySelectorAll('#chequeInputsContainer .dynamic-row');
-            let chqValid = true;
-            let totalChequeValue = 0;
-            
-            chqRows.forEach(row => {
-                const num = row.querySelector('.cheque-num-field').value;
-                const amt = row.querySelector('.cheque-amt-field').value;
-                if(!num || !amt) {
-                    chqValid = false;
-                } else {
-                    chequesList.push({ num, amt });
-                    totalChequeValue += parseFloat(amt);
-                }
-            });
-            if(!chqValid || chequesList.length === 0) {
-                alert("Please fill all Cheque numbers and respective breakdown Amounts.");
-                return;
-            }
+    function toggleSelect(key, cb) {
+        if(cb.checked) { if(!selectedKeys.includes(key)) selectedKeys.push(key); }
+        else selectedKeys = selectedKeys.filter(k => k !== key);
+        filterData();
+    }
 
-            // Cross check if Cheques total matches Net balance perfectly
-            const requiredNet = invoiceGrossTotal - returnAmount;
-            if (Math.abs(totalChequeValue - requiredNet) > 0.01) {
-                alert(`Amount Mismatch Detected!\n\nNet Payable Amount: LKR ${requiredNet.toFixed(2)}\nTotal Cheque Breakdown Entered: LKR ${totalChequeValue.toFixed(2)}\n\nBoth totals must match perfectly before saving.`);
-                return;
-            }
-        }
+    function calculateTotal() {
+        let total = 0;
+        selectedKeys.forEach(k => { let i = collections.find(c=>c.key===k); if(i) total += (parseFloat(i.amount||0)-parseFloat(i.returnAmount||0)); });
+        document.getElementById('totalAmount').innerText = total.toLocaleString('en-US',{minimumFractionDigits:2});
+    }
 
-        if (confirm("Do you want to save this data?")) {
-            if (!editKey) {
-                let promises = [];
-                invoiceRows.forEach((row, index) => {
-                    const invoice = row.querySelector('.invoice-num-field').value;
-                    const amount = row.querySelector('.invoice-amt-field').value;
-                    const assignedReturn = (index === 0) ? returnAmount : 0;
-
-                    let dataObject = { customer, invoice, mode, amount, date, returnAmount: assignedReturn };
-                    if(mode === 'Cheque') dataObject.chequesList = chequesList;
-
-                    promises.push(db.push(dataObject));
-                });
-                
-                Promise.all(promises).then(() => {
-                    alert("All collections saved safely to cloud!");
-                    resetForm();
-                    switchView('searchTab', document.getElementById('btnSearchMenu'));
-                });
-            } else {
-                const invoice = invoiceRows[0].querySelector('.invoice-num-field').value;
-                const amount = invoiceRows[0].querySelector('.invoice-amt-field').value;
-                
-                let updateData = { customer, invoice, mode, amount, date, returnAmount };
-                if(mode === 'Cheque') updateData.chequesList = chequesList;
-
-                db.child(editKey).set(updateData)
-                    .then(() => {
-                        alert("Updated & Saved to cloud!");
-                        resetForm();
-                        switchView('searchTab', document.getElementById('btnSearchMenu'));
-                    });
-            }
-        }
+    function toggleSelectAll(master) {
+        currentlyFilteredKeys.forEach(k => { if(master.checked) { if(!selectedKeys.includes(k)) selectedKeys.push(k); } else selectedKeys=selectedKeys.filter(x=>x!==k); });
+        filterData();
     }
 
     function resetForm() {
         document.getElementById('customerName').value = '';
         document.getElementById('paymentMode').value = 'Cash';
         document.getElementById('returnAmount').value = '0';
-        toggleChequeInput();
         document.getElementById('editKey').value = "";
+        document.getElementById('draftIdField').value = "";
         document.getElementById('formTitle').innerText = "Add Collection Entry";
-        document.getElementById('btnSave').innerText = "Save Collection";
-        document.getElementById('dateSelect').valueAsDate = new Date();
         document.getElementById('btnAddRow').style.display = 'inline-block';
         document.getElementById('btnAddChequeRow').style.display = 'inline-block';
         document.getElementById('invoiceInputsContainer').innerHTML = '';
         document.getElementById('chequeInputsContainer').innerHTML = '';
+        toggleChequeInput();
         addInvoiceRow('', '');
         calculateLiveFormTotals();
     }
 
-    function exportToPDF() {
-        if(selectedKeys.length === 0) {
-            alert("Please select at least one collection to print.");
-            return;
-        }
-        const labelCell = document.getElementById('totalLabelCell');
-        labelCell.setAttribute('colspan', '7');
-        window.print();
-        labelCell.setAttribute('colspan', '8');
-    }
-
-    addInvoiceRow('', '');
+    function exportToPDF() { window.print(); }
 </script>
-
 </body>
 </html>

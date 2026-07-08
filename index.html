@@ -612,16 +612,33 @@
                     <button class="action-btn export-btn" onclick="exportToPDF()">Print / Save Selected as PDF</button>
                 </div>
 
-                <!-- SECTION 3: NEW Customer Report View -->
+                <!-- SECTION 3: Customer Report View -->
                 <div id="reportTab" class="tab-content">
                     <h2>Customer Payment Statement Report</h2>
                     
                     <div class="search-box report-filter-section">
                         <div class="form-group">
-                            <label style="color: #2980b9; font-size: 16px;">Select Customer to Filter History:</label>
+                            <label style="color: #2980b9; font-size: 16px;">Select Customer:</label>
                             <select id="reportCustomerSelect" onchange="generateCustomerReport()">
                                 <option value="">-- Choose a Customer --</option>
                             </select>
+                        </div>
+
+                        <!-- NEW ADVANCED REPORT FILTER CONTROLS -->
+                        <div class="date-filter-row" style="margin-top: 15px;">
+                            <div class="form-group">
+                                <label style="color: #2980b9;">Filter From Date:</label>
+                                <input type="date" id="reportFromDate" onchange="generateCustomerReport()">
+                            </div>
+                            <div class="form-group">
+                                <label style="color: #2980b9;">Filter To Date:</label>
+                                <input type="date" id="reportToDate" onchange="generateCustomerReport()">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group" style="margin-top: 15px;">
+                            <label style="color: #2980b9;">Filter by Invoice, Payment Mode or Cheque inside Customer:</label>
+                            <input type="text" id="reportSearchInput" onkeyup="generateCustomerReport()" placeholder="Search invoice, mode, cheque number...">
                         </div>
                     </div>
 
@@ -643,7 +660,7 @@
                                 <tbody id="reportTableBody">
                                     <tr><td colspan="7" class="loading-text">Please select a customer from dropdown above to load history.</td></tr>
                                 </tbody>
-                                tfoot>
+                                <tfoot>
                                     <tr class="total-row">
                                         <td colspan="6" style="text-align: right;">Cumulative Total Net Paid Amount:</td>
                                         <td id="reportTotalPaidAmount">0.00</td>
@@ -976,9 +993,13 @@
         calculateTotal();
     }
 
-    // NEW CUSTOMER STATEMENT GENERATION WORKFLOW
+    // UPDATED CUSTOMER STATEMENT GENERATION WITH ADVANCED FILTERS
     function generateCustomerReport() {
         const selectedCustomer = document.getElementById('reportCustomerSelect').value;
+        const fromDate = document.getElementById('reportFromDate').value;
+        const toDate = document.getElementById('reportToDate').value;
+        const query = document.getElementById('reportSearchInput').value.toLowerCase();
+        
         const reportTbody = document.getElementById('reportTableBody');
         const headerTitle = document.getElementById('reportTitleHeader');
         
@@ -997,40 +1018,60 @@
 
         let recordCounter = 0;
 
-        // Sort items by date sequentially for clear ledger viewing
+        // Sort items by date sequentially
         let sortedCollections = [...collections].sort((a,b) => new String(a.date).localeCompare(b.date));
 
         sortedCollections.forEach(item => {
             if(item.customer && item.customer.trim() === selectedCustomer.trim()) {
-                recordCounter++;
-
+                
+                const modeStr = item.mode ? item.mode.toLowerCase() : 'cash';
+                let chequeSearchText = '';
                 let chequeDisplayHtml = '-';
+                
                 if(item.chequesList && item.chequesList.length > 0) {
                     chequeDisplayHtml = item.chequesList.map(c => `• No: ${c.num} (LKR ${parseFloat(c.amt).toLocaleString()})`).join('<br>');
+                    chequeSearchText = item.chequesList.map(c => c.num + ' ' + c.amt).join(' ');
                 } else if(item.cheque) { 
                     chequeDisplayHtml = `No: ${item.cheque}`;
+                    chequeSearchText = item.cheque;
                 }
 
-                const grossAmt = parseFloat(item.amount || 0);
-                const retAmt = parseFloat(item.returnAmount || 0);
-                const netPaid = grossAmt - retAmt;
-                cumulativeNetTotal += netPaid;
+                // Date Filtering Logic
+                let matchesDate = true;
+                if (fromDate && item.date < fromDate) matchesDate = false;
+                if (toDate && item.date > toDate) matchesDate = false;
 
-                let row = `<tr>
-                    <td>${item.date}</td>
-                    <td>${item.invoice}</td>
-                    <td><b>${item.mode ? item.mode : 'Cash'}</b></td>
-                    <td>${chequeDisplayHtml}</td>
-                    <td>${grossAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                    <td style="color: #e67e22;">${retAmt > 0 ? retAmt.toLocaleString('en-US', {minimumFractionDigits: 2}) : '0.00'}</td>
-                    <td style="color: #27ae60; font-weight: bold;">${netPaid.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
-                </tr>`;
-                reportTbody.innerHTML += row;
+                // Text Search Filtering Logic (Invoice, Mode, Cheques)
+                let matchesText = (
+                    item.invoice.toLowerCase().includes(query) || 
+                    modeStr.includes(query) ||
+                    chequeSearchText.toLowerCase().includes(query)
+                );
+
+                if (matchesDate && matchesText) {
+                    recordCounter++;
+
+                    const grossAmt = parseFloat(item.amount || 0);
+                    const retAmt = parseFloat(item.returnAmount || 0);
+                    const netPaid = grossAmt - retAmt;
+                    cumulativeNetTotal += netPaid;
+
+                    let row = `<tr>
+                        <td>${item.date}</td>
+                        <td>${item.invoice}</td>
+                        <td><b>${item.mode ? item.mode : 'Cash'}</b></td>
+                        <td>${chequeDisplayHtml}</td>
+                        <td>${grossAmt.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                        <td style="color: #e67e22;">${retAmt > 0 ? retAmt.toLocaleString('en-US', {minimumFractionDigits: 2}) : '0.00'}</td>
+                        <td style="color: #27ae60; font-weight: bold;">${netPaid.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+                    </tr>`;
+                    reportTbody.innerHTML += row;
+                }
             }
         });
 
         if(recordCounter === 0) {
-            reportTbody.innerHTML = '<tr><td colspan="7" class="loading-text">No ledger entries detected for this account.</td></tr>';
+            reportTbody.innerHTML = '<tr><td colspan="7" class="loading-text">No ledger entries detected for this search criteria.</td></tr>';
         }
 
         document.getElementById('reportTotalPaidAmount').innerText = cumulativeNetTotal.toLocaleString('en-US', {minimumFractionDigits: 2});

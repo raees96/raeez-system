@@ -248,6 +248,38 @@
             font-weight: bold;
         }
         .btn-remove-row:hover { background-color: #c0392b; }
+
+        /* LIVE SUMMARY PANEL STYLING */
+        .live-summary-panel {
+            background-color: #ebf5fb;
+            border: 1px solid #a9cce3;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 25px;
+            margin-bottom: 20px;
+        }
+        .live-summary-title {
+            font-weight: bold;
+            color: #2980b9;
+            margin-bottom: 10px;
+            font-size: 15px;
+            border-bottom: 1px solid #d4e6f1;
+            padding-bottom: 5px;
+        }
+        .live-summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .live-summary-row.final-net {
+            font-weight: bold;
+            font-size: 16px;
+            color: #27ae60;
+            border-top: 1px dashed #a9cce3;
+            padding-top: 6px;
+            margin-top: 6px;
+        }
         
         /* Date Filter Controls Bar */
         .date-filter-row {
@@ -491,10 +523,10 @@
                     </div>
                     <button type="button" class="btn-add-row" id="btnAddRow" onclick="addInvoiceRow('', '')">➕ Add Another Invoice</button>
 
-                    <!-- NEW FEATURE: CUSTOMER RETURNS ENTRY -->
+                    <!-- CUSTOMER RETURNS ENTRY -->
                     <div class="form-group" style="margin-top: 25px; background-color: #fdf2e9; padding: 15px; border-radius: 6px; border: 1px solid #fadbd8;">
                         <label style="color: #e67e22;">Customer Return Goods Value (LKR) - Optional:</label>
-                        <input type="number" id="returnAmount" placeholder="0.00" value="0">
+                        <input type="number" id="returnAmount" placeholder="0.00" value="0" oninput="calculateLiveFormTotals()">
                         <small style="color: #7f8c8d; display: block; margin-top: 4px;">This amount will be automatically deducted from the total value.</small>
                     </div>
 
@@ -505,6 +537,23 @@
                             <!-- Cheque Rows dynamic induction -->
                         </div>
                         <button type="button" class="btn-add-row btn-add-cheque" id="btnAddChequeRow" onclick="addChequeRow('', '')">➕ Add Another Cheque</button>
+                    </div>
+
+                    <!-- LIVE CALCULATING PRE-SAVE SUMMARY WORKSPACE PANEL -->
+                    <div class="live-summary-panel">
+                        <div class="live-summary-title">📊 Pre-Save Calculation Breakdown</div>
+                        <div class="live-summary-row">
+                            <span>Gross Invoice Total:</span>
+                            <span>LKR <span id="liveGrossInvoiceTotal">0.00</span></span>
+                        </div>
+                        <div class="live-summary-row" style="color: #c0392b;">
+                            <span>(-) Customer Return Deductions:</span>
+                            <span>LKR <span id="liveReturnDeduction">0.00</span></span>
+                        </div>
+                        <div class="live-summary-row final-net">
+                            <span>Net Payable Amount:</span>
+                            <span>LKR <span id="liveNetPayableAmount">0.00</span></span>
+                        </div>
                     </div>
 
                     <button class="action-btn" id="btnSave" onclick="confirmAndSave()">Save Collection</button>
@@ -544,7 +593,7 @@
                                     <th>Cheque Details</th>
                                     <th>Total (LKR)</th>
                                     <th>Return (LKR)</th>
-                                    <th>Net Net Balance (LKR)</th>
+                                    <th>Net Balance (LKR)</th>
                                     <th class="action-col">Actions</th>
                                 </tr>
                             </thead>
@@ -704,13 +753,14 @@
                 </div>
                 <div class="form-group">
                     <label>Amount (LKR):</label>
-                    <input type="number" class="invoice-amt-field" placeholder="0.00" value="${amtValue}">
+                    <input type="number" class="invoice-amt-field" placeholder="0.00" value="${amtValue}" oninput="calculateLiveFormTotals()">
                 </div>
                 <button type="button" class="btn-remove-row" onclick="removeDynamicRow('${rowId}', 'invoice')">❌</button>
             </div>
         `;
         container.insertAdjacentHTML('beforeend', rowHtml);
         manageRemoveButtons('invoice');
+        calculateLiveFormTotals();
     }
 
     function addChequeRow(chqNum = '', chqAmt = '') {
@@ -738,6 +788,7 @@
         const row = document.getElementById(rowId);
         if(row) row.remove();
         manageRemoveButtons(type);
+        if(type === 'invoice') calculateLiveFormTotals();
     }
 
     function manageRemoveButtons(type) {
@@ -748,6 +799,24 @@
         } else {
             rows.forEach(r => r.querySelector('.btn-remove-row').style.display = 'block');
         }
+    }
+
+    // LIVE PRE-SAVE FORM CALCULATION LOGIC
+    function calculateLiveFormTotals() {
+        const invoiceRows = document.querySelectorAll('#invoiceInputsContainer .dynamic-row');
+        let grossTotal = 0;
+        
+        invoiceRows.forEach(row => {
+            const amt = parseFloat(row.querySelector('.invoice-amt-field').value || 0);
+            grossTotal += amt;
+        });
+
+        const returnAmt = parseFloat(document.getElementById('returnAmount').value || 0);
+        const netPayable = grossTotal - returnAmt;
+
+        document.getElementById('liveGrossInvoiceTotal').innerText = grossTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
+        document.getElementById('liveReturnDeduction').innerText = returnAmt.toLocaleString('en-US', {minimumFractionDigits: 2});
+        document.getElementById('liveNetPayableAmount').innerText = netPayable.toLocaleString('en-US', {minimumFractionDigits: 2});
     }
 
     function filterData() {
@@ -779,7 +848,6 @@
                 chequeSearchText = item.cheque;
             }
 
-            // Calculation Logic for Returns
             const returnVal = parseFloat(item.returnAmount || 0);
             const totalVal = parseFloat(item.amount || 0);
             const netBalance = totalVal - returnVal;
@@ -917,6 +985,7 @@
         document.getElementById('formTitle').innerText = "Edit Collection Entry";
         document.getElementById('btnSave').innerText = "Update & Save";
         switchView('addTab', document.getElementById('btnAddMenu'));
+        calculateLiveFormTotals();
     }
 
     function deleteRecord(key) {
@@ -981,13 +1050,9 @@
         if (confirm("Do you want to save this data?")) {
             if (!editKey) {
                 let promises = [];
-                // Handle Multi Invoice Splits 
-                // Note: The returnAmount is applied proportionally or to the combined block. For simplicity, we track it on each input transaction split.
                 invoiceRows.forEach((row, index) => {
                     const invoice = row.querySelector('.invoice-num-field').value;
                     const amount = row.querySelector('.invoice-amt-field').value;
-                    
-                    // Apply return amount to the first row entry block, others get 0 if multiple entries added at once
                     const assignedReturn = (index === 0) ? returnAmount : 0;
 
                     let dataObject = { customer, invoice, mode, amount, date, returnAmount: assignedReturn };
@@ -1032,6 +1097,7 @@
         document.getElementById('invoiceInputsContainer').innerHTML = '';
         document.getElementById('chequeInputsContainer').innerHTML = '';
         addInvoiceRow('', '');
+        calculateLiveFormTotals();
     }
 
     function exportToPDF() {

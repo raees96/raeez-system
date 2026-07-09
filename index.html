@@ -129,11 +129,11 @@
             background-color: #e74c3c !important;
         }
 
-        /* Top Bar Menu Button for Mobile & PC */
+        /* Top Bar Menu Button - Only visible in Dashboard View */
         .top-navbar {
+            display: none; /* Controlled via JS login status */
             background-color: #2c3e50;
             padding: 10px 15px;
-            display: flex;
             align-items: center;
             position: sticky;
             top: 0;
@@ -160,7 +160,7 @@
         /* Main Content Layout */
         .main-content {
             padding: 20px;
-            margin-left: 0; /* Full screen space on default since menu is hidden */
+            margin-left: 0; 
             box-sizing: border-box;
             min-height: calc(100vh - 55px);
         }
@@ -219,7 +219,7 @@
             height: 45px;
         }
 
-        /* Dynamic Row System - Per Invoice Return Field Style */
+        /* Dynamic Row System */
         .dynamic-inputs-container {
             border: 1px dashed #3498db;
             padding: 15px;
@@ -368,26 +368,17 @@
         .badge-draft { background-color: #e67e22; color: white; padding: 2px 7px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 5px; }
 
         @media (max-width: 768px) {
-            .main-content {
-                padding: 15px;
-            }
-            .container {
-                padding: 15px;
-            }
-            .dynamic-row .form-group, .dynamic-row .form-group-sm {
-                min-width: 100%; 
-            }
-            .btn-remove-row {
-                width: 100%; 
-                margin-top: 5px;
-            }
+            .main-content { padding: 15px; }
+            .container { padding: 15px; }
+            .dynamic-row .form-group, .dynamic-row .form-group-sm { min-width: 100%; }
+            .btn-remove-row { width: 100%; margin-top: 5px; }
         }
     </style>
 </head>
 <body>
 
-    <!-- TOP NAVIGATION BAR (ALWAYS VISIBLE TO OPEN MENU) -->
-    <div class="top-navbar">
+    <!-- TOP NAVIGATION BAR (ONLY DISPLAYED WHEN LOGGED IN) -->
+    <div class="top-navbar" id="topNavbar">
         <button class="toggle-menu-btn" onclick="openSidebar()">☰ Menu</button>
         <div class="top-navbar-title">Raeez Collection Tracker</div>
     </div>
@@ -528,11 +519,26 @@
                     <button class="action-btn export-btn" onclick="exportToPDF()">Print Selected as PDF</button>
                 </div>
 
-                <!-- SECTION 3: Customer Report View -->
+                <!-- SECTION 3: Customer Report View (Updated with Date Range Filter) -->
                 <div id="reportTab" class="tab-content">
                     <h2>Customer Payment Statement Report</h2>
                     <div class="search-box">
-                        <div class="form-group"><label>Select Customer:</label><select id="reportCustomerSelect" onchange="generateCustomerReport()"><option value="">-- Choose a Customer --</option></select></div>
+                        <div class="form-group">
+                            <label>Select Customer:</label>
+                            <select id="reportCustomerSelect" onchange="generateCustomerReport()">
+                                <option value="">-- Choose a Customer --</option>
+                            </select>
+                        </div>
+                        <div style="display:flex; gap:10px; flex-wrap: wrap; margin-top: 10px;">
+                            <div class="form-group" style="flex:1; min-width: 140px;">
+                                <label>Report From Date:</label>
+                                <input type="date" id="reportFromDate" onchange="generateCustomerReport()">
+                            </div>
+                            <div class="form-group" style="flex:1; min-width: 140px;">
+                                <label>Report To Date:</label>
+                                <input type="date" id="reportToDate" onchange="generateCustomerReport()">
+                            </div>
+                        </div>
                     </div>
                     <div id="reportPrintArea">
                         <h3 id="reportTitleHeader" style="display:none;">Statement of Accounts</h3>
@@ -565,19 +571,41 @@
     const db = firebase.database().ref("cashCollections");
 
     let collections = []; let selectedKeys = []; let currentlyFilteredKeys = [];
+    
+    // 5 Minutes Auto Logout Security Subsystem
+    let idleTimer;
+    const idleTimeoutDuration = 5 * 60 * 1000; // 5 Minutes in Milliseconds
+
+    function resetIdleTimer() {
+        clearTimeout(idleTimer);
+        // Only run countdown tracker if user is logged into the dashboard layout
+        if (document.getElementById('dashboardLayout').style.display === 'block') {
+            idleTimer = setTimeout(triggerAutoLogout, idleTimeoutDuration);
+        }
+    }
+
+    function setupIdleTrackingListeners() {
+        window.onload = resetIdleTimer;
+        window.onmousemove = resetIdleTimer;
+        window.onmousedown = resetIdleTimer; 
+        window.ontouchstart = resetIdleTimer;
+        window.onclick = resetIdleTimer;     
+        window.onkeydown = resetIdleTimer;   
+    }
+
+    function triggerAutoLogout() {
+        alert("Session Expired! You were inactive for more than 5 minutes. Form details frozen and secured.");
+        handleLogout();
+    }
 
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('dateSelect').valueAsDate = new Date();
         renderDraftsList();
+        setupIdleTrackingListeners(); // Launch tracking sub-routines
     });
 
-    // Sidebar Controller for both PC and Mobile devices
-    function openSidebar() {
-        document.getElementById('sidebarMenu').classList.add('open');
-    }
-    function closeSidebar() {
-        document.getElementById('sidebarMenu').classList.remove('open');
-    }
+    function openSidebar() { document.getElementById('sidebarMenu').classList.add('open'); }
+    function closeSidebar() { document.getElementById('sidebarMenu').classList.remove('open'); }
 
     function toggleChequeInput() {
         const mode = document.getElementById('paymentMode').value;
@@ -622,14 +650,20 @@
         if (user.toLowerCase() === "raeez" && pass === "1234") {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('dashboardLayout').style.display = 'block';
+            document.getElementById('topNavbar').style.display = 'flex'; // Display top header navigation menu
+            resetIdleTimer(); // Initiate dynamic safety clock
         } else {
             alert("Invalid Username or Password!");
         }
     }
 
     function handleLogout() {
+        clearTimeout(idleTimer);
         document.getElementById('dashboardLayout').style.display = 'none';
+        document.getElementById('topNavbar').style.display = 'none'; // Lock navigation completely
         document.getElementById('loginScreen').style.display = 'flex';
+        document.getElementById('usernameInput').value = '';
+        document.getElementById('passwordInput').value = '';
         goHome(document.getElementById('btnHomeMenu'));
     }
 
@@ -655,11 +689,11 @@
         if(tabId === 'addTab' && document.getElementById('invoiceInputsContainer').children.length === 0) addInvoiceRow('', '', '0');
         if(tabId === 'draftTab') renderDraftsList();
         if(tabId === 'searchTab') filterData();
+        if(tabId === 'reportTab') generateCustomerReport();
         
         closeSidebar(); 
     }
 
-    // Dynamic Row implementation linked directly with invoice-level return amounts
     function addInvoiceRow(invValue = '', amtValue = '', retValue = '0') {
         const container = document.getElementById('invoiceInputsContainer');
         const rowId = 'inv-row-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
@@ -735,14 +769,8 @@
         document.getElementById('livePaymentModeTotal').innerText = modeAllocatedTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
     }
 
-    function getLocalDrafts() {
-        return JSON.parse(localStorage.getItem("raeez_drafts") || "[]");
-    }
-
-    function saveLocalDrafts(drafts) {
-        localStorage.setItem("raeez_drafts", JSON.stringify(drafts));
-        renderDraftsList();
-    }
+    function getLocalDrafts() { return JSON.parse(localStorage.getItem("raeez_drafts") || "[]"); }
+    function saveLocalDrafts(drafts) { localStorage.setItem("raeez_drafts", JSON.stringify(drafts)); renderDraftsList(); }
 
     function saveAsDraft() {
         const customer = document.getElementById('customerName').value || "Unnamed Customer";
@@ -774,10 +802,7 @@
 
         if(draftId) {
             const idx = drafts.findIndex(d => d.id == draftId);
-            if(idx !== -1) {
-                draftData.id = draftId;
-                drafts[idx] = draftData;
-            }
+            if(idx !== -1) { draftData.id = draftId; drafts[idx] = draftData; }
         } else {
             draftData.id = 'draft-' + Date.now();
             drafts.push(draftData);
@@ -794,12 +819,8 @@
         const tbody = document.getElementById('draftTableBody');
         const badge = document.getElementById('draftCountBadge');
         
-        if(drafts.length > 0) {
-            badge.innerText = drafts.length;
-            badge.style.display = 'inline-block';
-        } else {
-            badge.style.display = 'none';
-        }
+        if(drafts.length > 0) { badge.innerText = drafts.length; badge.style.display = 'inline-block'; } 
+        else { badge.style.display = 'none'; }
 
         tbody.innerHTML = '';
         if(drafts.length === 0) {
@@ -815,15 +836,9 @@
 
             tbody.innerHTML += `
                 <tr>
-                    <td>${d.date}</td>
-                    <td><b>${d.customer}</b></td>
-                    <td>${invDetails}</td>
-                    <td>${d.mode}</td>
+                    <td>${d.date}</td><td><b>${d.customer}</b></td><td>${invDetails}</td><td>${d.mode}</td>
                     <td style="font-weight:bold; color:#e67e22;">${net.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
-                    <td>
-                        <button class="btn-edit" onclick="loadDraftForEditing('${d.id}')">Open</button>
-                        <button class="btn-delete" onclick="deleteDraft('${d.id}')">Delete</button>
-                    </td>
+                    <td><button class="btn-edit" onclick="loadDraftForEditing('${d.id}')">Open</button><button class="btn-delete" onclick="deleteDraft('${d.id}')">Delete</button></td>
                 </tr>`;
         });
     }
@@ -842,18 +857,13 @@
         document.getElementById('invoiceInputsContainer').innerHTML = '';
         if(d.invoicesList && d.invoicesList.length > 0) {
             d.invoicesList.forEach(i => addInvoiceRow(i.invoice, i.amount, i.returnAmount || '0'));
-        } else {
-            addInvoiceRow('', '', '0');
-        }
+        } else { addInvoiceRow('', '', '0'); }
 
         if(d.mode === 'Cheque') {
             document.getElementById('chequeSectionContainer').style.display = 'block';
             document.getElementById('chequeInputsContainer').innerHTML = '';
-            if(d.chequesList && d.chequesList.length > 0) {
-                d.chequesList.forEach(c => addChequeRow(c.num, c.amt));
-            } else {
-                addChequeRow('', '');
-            }
+            if(d.chequesList && d.chequesList.length > 0) { d.chequesList.forEach(c => addChequeRow(c.num, c.amt)); } 
+            else { addChequeRow('', ''); }
         }
 
         document.getElementById('formTitle').innerText = "Edit Draft Entry";
@@ -887,10 +897,7 @@
             const invAmt = row.querySelector('.invoice-amt-field').value;
             const invRet = row.querySelector('.invoice-ret-field').value || 0;
             if(!invNum || !invAmt) invoicesValid = false;
-            else {
-                invoiceGrossTotal += parseFloat(invAmt);
-                totalReturnAmount += parseFloat(invRet);
-            }
+            else { invoiceGrossTotal += parseFloat(invAmt); totalReturnAmount += parseFloat(invRet); }
         });
         if(!invoicesValid) { alert("Please fill all invoice numbers and amounts."); return; }
 
@@ -916,7 +923,6 @@
         if (confirm("Do you want to upload this data permanently to the cloud?")) {
             if (!editKey) {
                 let promises = [];
-                // Cloud structure maps single items while preserving multi-row linked context entries
                 invoiceRows.forEach((row) => {
                     let dataObject = {
                         customer,
@@ -1017,19 +1023,32 @@
         if (confirm("Delete permanently from Cloud?")) db.child(key).remove();
     }
 
+    // Dynamic Filter System with Date Ranges for Statement Report 
     function generateCustomerReport() {
         const selected = document.getElementById('reportCustomerSelect').value;
+        const fromDateFilter = document.getElementById('reportFromDate').value;
+        const toDateFilter = document.getElementById('reportToDate').value;
         const tbody = document.getElementById('reportTableBody');
         tbody.innerHTML = ''; let total = 0;
 
         if(!selected) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">Select customer.</td></tr>'; return; }
-        document.getElementById('reportTitleHeader').innerText = `Report - ${selected}`;
+        
+        let headerLabel = `Report - ${selected}`;
+        if(fromDateFilter || toDateFilter) {
+            headerLabel += ` (From: ${fromDateFilter || 'Start'} To: ${toDateFilter || 'End'})`;
+        }
+        document.getElementById('reportTitleHeader').innerText = headerLabel;
         document.getElementById('reportTitleHeader').style.display = 'block';
 
         collections.filter(c => c.customer === selected).forEach(item => {
-            let net = parseFloat(item.amount||0) - parseFloat(item.returnAmount||0); total += net;
-            let chqHtml = item.chequesList ? item.chequesList.map(c => c.num).join(', ') : '-';
-            tbody.innerHTML += `<tr><td>${item.date}</td><td>${item.invoice}</td><td>${item.mode||'Cash'}</td><td>${chqHtml}</td><td>${parseFloat(item.amount).toLocaleString()}</td><td>${parseFloat(item.returnAmount||0).toLocaleString()}</td><td style="color:#27ae60; font-weight:bold;">${net.toLocaleString()}</td></tr>`;
+            // Check Statement Filter Boundaries
+            let matchDateRange = (!fromDateFilter || item.date >= fromDateFilter) && (!toDateFilter || item.date <= toDateFilter);
+            
+            if(matchDateRange) {
+                let net = parseFloat(item.amount||0) - parseFloat(item.returnAmount||0); total += net;
+                let chqHtml = item.chequesList ? item.chequesList.map(c => c.num).join(', ') : '-';
+                tbody.innerHTML += `<tr><td>${item.date}</td><td>${item.invoice}</td><td>${item.mode||'Cash'}</td><td>${chqHtml}</td><td>${parseFloat(item.amount).toLocaleString()}</td><td>${parseFloat(item.returnAmount||0).toLocaleString()}</td><td style="color:#27ae60; font-weight:bold;">${net.toLocaleString()}</td></tr>`;
+            }
         });
         document.getElementById('reportTotalPaidAmount').innerText = total.toLocaleString('en-US',{minimumFractionDigits:2});
     }

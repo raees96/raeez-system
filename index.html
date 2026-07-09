@@ -397,7 +397,6 @@
                 color: black !important;
                 font-family: Arial, sans-serif !important;
             }
-            /* Hide entire screen UI wrapper, tabs, headers, sidebars and layout constraints */
             .top-navbar, .sidebar, .search-box, .button-group-grid, button, .login-screen, .welcome-view, h2 {
                 display: none !important;
             }
@@ -410,14 +409,12 @@
                 width: 100% !important;
                 max-width: 100% !important;
             }
-            /* Hide inactive tab contents cleanly */
             .tab-content {
                 display: none !important;
             }
             .tab-content.active {
                 display: block !important;
             }
-            /* Strip out all colors, shading, backgrounds and lines for standard dot-matrix clarity */
             table, th, td {
                 border: 1px solid black !important;
                 color: black !important;
@@ -433,7 +430,6 @@
                 background-color: transparent !important;
                 background: none !important;
             }
-            /* Force clear text weights on numerical totals */
             .total-row, td[id*="Amount"], td[id*="Paid"] {
                 font-weight: bold !important;
                 background: none !important;
@@ -481,13 +477,15 @@
         <div class="sidebar" id="sidebarMenu">
             <div>
                 <button class="menu-btn close-sidebar-btn" onclick="closeSidebar()">❌ Close Menu</button>
-                <div class="sidebar-header">Raeez Dashboard</div>
+                <div class="sidebar-header" id="sidebarUserHeader">Raeez Dashboard</div>
                 <div class="menu-links">
                     <button class="menu-btn active" id="btnHomeMenu" onclick="goHome(this)">🏠 Home</button>
                     <button class="menu-btn" id="btnAddMenu" onclick="switchView('addTab', this)">📝 Add New Collection</button>
                     <button class="menu-btn" id="btnDraftMenu" onclick="switchView('draftTab', this)">📂 Draft Collections <span id="draftCountBadge" class="badge-draft" style="display:none;">0</span></button>
                     <button class="menu-btn" id="btnSearchMenu" onclick="switchView('searchTab', this)">🔍 Search & History</button>
                     <button class="menu-btn" id="btnReportMenu" onclick="switchView('reportTab', this)">📊 Customer Reports</button>
+                    <!-- USER MANAGEMENT TAB LINK FOR ADMIN ONLY -->
+                    <button class="menu-btn" id="btnUserMenu" onclick="switchView('userTab', this)" style="display:none; background-color: #34495e; color: #f1c40f;">⚙️ User Management</button>
                 </div>
             </div>
             <button class="menu-btn logout-btn" onclick="handleLogout()">🚪 Logout</button>
@@ -496,7 +494,7 @@
         <div class="main-content" id="mainContentArea">
 
             <div id="welcomeView" class="welcome-view">
-                <h2>Welcome to Raeez Collection System</h2>
+                <h2 id="welcomeGreeting">Welcome to Raeez Collection System</h2>
                 <p>Use the menu button above to navigate through the system.</p>
             </div>
 
@@ -589,7 +587,7 @@
                                     </tr>
                                 </thead>
                                 <tbody id="tableBody"></tbody>
-                                tfoot>
+                                <tfoot>
                                     <tr class="total-row"><td colspan="8" style="text-align: right;" id="totalLabelCell">Selected Net Total Balance:</td><td id="totalAmount" colspan="2" style="font-weight: bold;">0.00</td></tr>
                                 </tfoot>
                             </table>
@@ -642,6 +640,40 @@
                     </div>
                 </div>
 
+                <!-- NEW SECTION 4: USER MANAGEMENT VIEW (ADMIN ONLY) -->
+                <div id="userTab" class="tab-content">
+                    <h2>⚙️ System User Management</h2>
+                    <div class="search-box" style="background-color: #fef9e7; border: 1px solid #f5b041;">
+                        <h3 style="margin-top:0; font-size:16px; color:#b7950b;">Create New User Account</h3>
+                        <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                            <div class="form-group" style="flex:1; min-width:140px;">
+                                <label>Username:</label>
+                                <input type="text" id="newUsername" placeholder="e.g. kasun">
+                            </div>
+                            <div class="form-group" style="flex:1; min-width:140px;">
+                                <label>Password / Pin:</label>
+                                <input type="text" id="newPassword" placeholder="e.g. 9988">
+                            </div>
+                        </div>
+                        <button class="action-btn" style="background-color: #f39c12; margin-top:10px; padding:10px;" onclick="addNewUser()">➕ Register User</button>
+                    </div>
+
+                    <h3>Active System Users</h3>
+                    <div class="table-responsive">
+                        <table style="min-width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Access Password</th>
+                                    <th>Account Type</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -658,10 +690,13 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database().ref("cashCollections");
+    const userDb = firebase.database().ref("systemUsers"); // Cloud path for sub-users
 
     let collections = []; let selectedKeys = []; let currentlyFilteredKeys = [];
+    let systemUsersList = [];
+    let loggedInUser = "";
+    let isAdmin = false;
     
-    // 5 Minutes Auto Logout Security Subsystem
     let idleTimer;
     const idleTimeoutDuration = 5 * 60 * 1000; 
 
@@ -709,6 +744,7 @@
         calculateLiveFormTotals();
     }
 
+    // Load Collections Data
     db.on("value", (snapshot) => {
         collections = [];
         snapshot.forEach((childSnapshot) => {
@@ -717,6 +753,15 @@
         populateCustomerDropdown();
         if(document.getElementById('searchTab').classList.contains('active')) filterData();
         if(document.getElementById('reportTab').classList.contains('active')) generateCustomerReport();
+    });
+
+    // Load System Users Data Subsystem
+    userDb.on("value", (snapshot) => {
+        systemUsersList = [];
+        snapshot.forEach((childSnapshot) => {
+            systemUsersList.push({ key: childSnapshot.key, ...childSnapshot.val() });
+        });
+        if(isAdmin) renderUsersTable();
     });
 
     function populateCustomerDropdown() {
@@ -732,13 +777,46 @@
         if(uniqueCustomers.includes(currentSelection)) dropdown.value = currentSelection;
     }
 
+    // Handle Login with Multiple Users
     function handleLogin() {
-        const user = document.getElementById('usernameInput').value;
-        const pass = document.getElementById('passwordInput').value;
+        const user = document.getElementById('usernameInput').value.trim();
+        const pass = document.getElementById('passwordInput').value.trim();
+        
+        if (!user || !pass) { alert("Please fill Username and Password!"); return; }
+
+        let loginSuccess = false;
+        isAdmin = false;
+
+        // 1. Check Primary Admin Account
         if (user.toLowerCase() === "raeez" && pass === "1234") {
+            loginSuccess = true;
+            isAdmin = true;
+            loggedInUser = "Raeez (Admin)";
+        } else {
+            // 2. Check Database Users
+            const matchedUser = systemUsersList.find(u => u.username.toLowerCase() === user.toLowerCase() && u.password === pass);
+            if (matchedUser) {
+                loginSuccess = true;
+                loggedInUser = matchedUser.username;
+            }
+        }
+
+        if (loginSuccess) {
             document.getElementById('loginScreen').style.display = 'none';
             document.getElementById('dashboardLayout').style.display = 'block';
             document.getElementById('topNavbar').style.display = 'flex'; 
+            
+            // Adjust Navigation view access control tags
+            document.getElementById('sidebarUserHeader').innerText = `${loggedInUser} Dashboard`;
+            document.getElementById('welcomeGreeting').innerText = `Welcome, ${loggedInUser} to Collection System`;
+            
+            if(isAdmin) {
+                document.getElementById('btnUserMenu').style.display = 'block';
+                renderUsersTable();
+            } else {
+                document.getElementById('btnUserMenu').style.display = 'none';
+            }
+
             resetIdleTimer(); 
         } else {
             alert("Invalid Username or Password!");
@@ -752,7 +830,56 @@
         document.getElementById('loginScreen').style.display = 'flex';
         document.getElementById('usernameInput').value = '';
         document.getElementById('passwordInput').value = '';
+        loggedInUser = "";
+        isAdmin = false;
         goHome(document.getElementById('btnHomeMenu'));
+    }
+
+    // USER REGISTRATION & CONTROL SYSTEM FUNCTIONS (ADMIN ONLY)
+    function addNewUser() {
+        if(!isAdmin) return;
+        const uName = document.getElementById('newUsername').value.trim();
+        const pWord = document.getElementById('newPassword').value.trim();
+        
+        if(!uName || !pWord) { alert("Please complete both Username and Password!"); return; }
+        if(uName.toLowerCase() === "raeez") { alert("Cannot create another user with 'raeez' name!"); return; }
+        
+        // Check duplication
+        const exists = systemUsersList.some(u => u.username.toLowerCase() === uName.toLowerCase());
+        if(exists) { alert("This username already exists!"); return; }
+
+        userDb.push({ username: uName, password: pWord, createdBy: "Admin" }).then(() => {
+            alert(`User '${uName}' registered successfully!`);
+            document.getElementById('newUsername').value = '';
+            document.getElementById('newPassword').value = '';
+        });
+    }
+
+    function deleteUser(key, name) {
+        if(!isAdmin) return;
+        if(confirm(`Are you sure you want to permanently delete user '${name}'?`)) {
+            userDb.child(key).remove().then(() => { alert("User deleted successfully."); });
+        }
+    }
+
+    function renderUsersTable() {
+        const tbody = document.getElementById('userTableBody');
+        tbody.innerHTML = '';
+        
+        // Append Main Admin Display Reference
+        tbody.innerHTML += `<tr><td><b>raeez</b></td><td>•••• (Protected)</td><td><span style="color:#27ae60; font-weight:bold;">Primary Admin</span></td><td>-</td></tr>`;
+        
+        if(systemUsersList.length === 0) {
+            return;
+        }
+        systemUsersList.forEach(u => {
+            tbody.innerHTML += `<tr>
+                <td>${u.username}</td>
+                <td>${u.password}</td>
+                <td>Standard Assistant User</td>
+                <td><button class="btn-delete" onclick="deleteUser('${u.key}', '${u.username}')">Remove</button></td>
+            </tr>`;
+        });
     }
 
     function goHome(btnElement) {
@@ -934,7 +1061,15 @@
             if (!editKey) {
                 let promises = [];
                 invoiceRows.forEach((row) => {
-                    let dataObject = { customer, invoice: row.querySelector('.invoice-num-field').value, amount: row.querySelector('.invoice-amt-field').value, returnAmount: row.querySelector('.invoice-ret-field').value || 0, mode, date };
+                    let dataObject = { 
+                        customer, 
+                        invoice: row.querySelector('.invoice-num-field').value, 
+                        amount: row.querySelector('.invoice-amt-field').value, 
+                        returnAmount: row.querySelector('.invoice-ret-field').value || 0, 
+                        mode, 
+                        date,
+                        enteredBy: loggedInUser // Logs who submitted the collection
+                    };
                     if(mode === 'Cheque') dataObject.chequesList = chequesList; promises.push(db.push(dataObject));
                 });
                 Promise.all(promises).then(() => {
@@ -943,7 +1078,7 @@
                     resetForm(); switchView('searchTab', document.getElementById('btnSearchMenu'));
                 });
             } else {
-                let updateData = { customer, date, mode, invoice: invoiceRows[0].querySelector('.invoice-num-field').value, amount: invoiceRows[0].querySelector('.invoice-amt-field').value, returnAmount: invoiceRows[0].querySelector('.invoice-ret-field').value || 0 };
+                let updateData = { customer, date, mode, invoice: invoiceRows[0].querySelector('.invoice-num-field').value, amount: invoiceRows[0].querySelector('.invoice-amt-field').value, returnAmount: invoiceRows[0].querySelector('.invoice-ret-field').value || 0, lastEditedBy: loggedInUser };
                 if(mode === 'Cheque') updateData.chequesList = chequesList;
                 db.child(editKey).set(updateData).then(() => { alert("Cloud entry updated!"); resetForm(); switchView('searchTab', document.getElementById('btnSearchMenu')); });
             }
@@ -976,7 +1111,7 @@
     }
 
     function editRecord(key) {
-        if (prompt("Enter Admin Password:") !== "1234") return;
+        if (prompt("Enter Control PIN:") !== "1234") return;
         const item = collections.find(c => c.key === key); if(!item) return;
         resetForm();
         document.getElementById('customerName').value = item.customer; document.getElementById('paymentMode').value = item.mode || 'Cash'; document.getElementById('dateSelect').value = item.date; document.getElementById('editKey').value = key;
@@ -989,7 +1124,7 @@
     }
 
     function deleteRecord(key) {
-        if (prompt("Enter Admin Password:") !== "1234") return;
+        if (prompt("Enter Control PIN:") !== "1234") return;
         if (confirm("Delete permanently from Cloud?")) db.child(key).remove();
     }
 
@@ -1033,9 +1168,7 @@
         toggleChequeInput(); addInvoiceRow('', '', '0'); calculateLiveFormTotals();
     }
 
-    // TARGETED AREA PRINT ENGINE CONTROL
     function triggerDirectPrint(tabType) {
-        // Toggle specific custom title element visibilities explicitly before layout window print triggers
         if(tabType === 'search') {
             document.getElementById('searchTitleHeader').style.display = 'block';
             document.getElementById('reportTitleHeader').style.display = 'none';
@@ -1044,7 +1177,6 @@
             document.getElementById('reportTitleHeader').style.display = 'block';
         }
         
-        // Dynamic dynamic temporary inline injection logic to mask system interactive checkboxes/actions column lines safely
         const styleEl = document.createElement("style");
         styleEl.id = "temp-print-mask-css";
         styleEl.innerHTML = "@media print { .hide-on-print { display: none !important; } }";
@@ -1052,7 +1184,6 @@
         
         window.print();
         
-        // Instantly garbage collect structural injection markers to retain stable viewport web layouts
         if(document.getElementById("temp-print-mask-css")) {
             document.getElementById("temp-print-mask-css").remove();
         }
@@ -1061,11 +1192,7 @@
         }
     }
 
-    // ==========================================
-    // EXPORT ENGINE SUBSYSTEMS (PLAIN BLACK & WHITE PDF & EXCEL)
-    // ==========================================
-
-    // 1. Search History -> Plain PDF (Only Selected Items)
+    // EXPORT ENGINE FUNCTIONS
     function exportSearchPDF() {
         if(selectedKeys.length === 0) { alert("Please select at least one record using checkboxes to export PDF!"); return; }
         const { jsPDF } = window.jspdf; const doc = new jsPDF('l', 'pt', 'a4'); 
@@ -1092,7 +1219,6 @@
         doc.save(`Collection_Selected_Report_${Date.now()}.pdf`);
     }
 
-    // 2. Search History -> Excel (All Currently Filtered Rows)
     function exportSearchExcel() {
         if(currentlyFilteredKeys.length === 0) { alert("No filtered data available to export to Excel!"); return; }
         let excelRows = [];
@@ -1108,7 +1234,6 @@
         XLSX.writeFile(workbook, `Collection_Filtered_History_${Date.now()}.xlsx`);
     }
 
-    // 3. Customer Statement -> Plain PDF
     function exportReportPDF() {
         const selectedCust = document.getElementById('reportCustomerSelect').value;
         if(!selectedCust) { alert("Please select a customer first!"); return; }
@@ -1140,7 +1265,6 @@
         doc.save(`Statement_${selectedCust.replace(/\s+/g, '_')}.pdf`);
     }
 
-    // 4. Customer Statement -> Excel
     function exportReportExcel() {
         const selectedCust = document.getElementById('reportCustomerSelect').value;
         if(!selectedCust) { alert("Please select a customer first!"); return; }

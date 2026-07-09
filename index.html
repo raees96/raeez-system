@@ -389,6 +389,66 @@
             .dynamic-row .form-group, .dynamic-row .form-group-sm { min-width: 100%; }
             .btn-remove-row { width: 100%; margin-top: 5px; }
         }
+
+        /* DOT MATRIX PRINT OPTIMIZATION SUBSYSTEM */
+        @media print {
+            body {
+                background-color: white !important;
+                color: black !important;
+                font-family: Arial, sans-serif !important;
+            }
+            /* Hide entire screen UI wrapper, tabs, headers, sidebars and layout constraints */
+            .top-navbar, .sidebar, .search-box, .button-group-grid, button, .login-screen, .welcome-view, h2 {
+                display: none !important;
+            }
+            .dashboard-layout, .main-content, .container {
+                display: block !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                background: white !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            /* Hide inactive tab contents cleanly */
+            .tab-content {
+                display: none !important;
+            }
+            .tab-content.active {
+                display: block !important;
+            }
+            /* Strip out all colors, shading, backgrounds and lines for standard dot-matrix clarity */
+            table, th, td {
+                border: 1px solid black !important;
+                color: black !important;
+                background-color: transparent !important;
+                background: none !important;
+            }
+            th {
+                color: black !important;
+                font-weight: bold !important;
+                text-transform: none !important;
+            }
+            tr {
+                background-color: transparent !important;
+                background: none !important;
+            }
+            /* Force clear text weights on numerical totals */
+            .total-row, td[id*="Amount"], td[id*="Paid"] {
+                font-weight: bold !important;
+                background: none !important;
+                background-color: transparent !important;
+                color: black !important;
+            }
+            .table-responsive {
+                overflow: visible !important;
+                border: none !important;
+            }
+            table {
+                min-width: 100% !important;
+                width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -518,25 +578,28 @@
                         </div>
                         <div class="form-group" style="margin-top: 10px;"><label>Filter Search:</label><input type="text" id="searchInput" onkeyup="filterData()" placeholder="Type here to search..."></div>
                     </div>
-                    <div class="table-responsive">
-                        <table id="collectionTable">
-                            <thead>
-                                <tr>
-                                    <th style="width:40px;"><input type="checkbox" id="selectAllBox" onclick="toggleSelectAll(this)"></th>
-                                    <th>Date</th><th>Customer Name</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Gross Amount</th><th>Return Goods</th><th>Net Balance</th><th style="width:140px;">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tableBody"></tbody>
-                            <tfoot>
-                                <tr class="total-row"><td colspan="8" style="text-align: right;" id="totalLabelCell">Selected Net Total Balance:</td><td id="totalAmount" colspan="2">0.00</td></tr>
-                            </tfoot>
-                        </table>
+                    <div id="searchPrintArea">
+                        <h3 id="searchTitleHeader" style="display:none; font-size: 18px; margin-bottom: 10px; font-weight: bold; color: black;">Collection History Records</h3>
+                        <div class="table-responsive">
+                            <table id="collectionTable">
+                                <thead>
+                                    <tr>
+                                        <th style="width:40px;" class="hide-on-print"><input type="checkbox" id="selectAllBox" onclick="toggleSelectAll(this)"></th>
+                                        <th>Date</th><th>Customer Name</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Gross Amount</th><th>Return Goods</th><th>Net Balance</th><th style="width:140px;" class="hide-on-print">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody"></tbody>
+                                tfoot>
+                                    <tr class="total-row"><td colspan="8" style="text-align: right;" id="totalLabelCell">Selected Net Total Balance:</td><td id="totalAmount" colspan="2" style="font-weight: bold;">0.00</td></tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
                     
                     <div class="button-group-grid">
                         <button class="action-btn export-btn" onclick="exportSearchPDF()">📄 Download Selected PDF</button>
                         <button class="action-btn export-excel-btn" onclick="exportSearchExcel()">🟢 Download Filtered Excel</button>
-                        <button class="action-btn export-print-btn" onclick="window.print()">🖨️ Direct Print View</button>
+                        <button class="action-btn export-print-btn" onclick="triggerDirectPrint('search')">🖨️ Direct Print View</button>
                     </div>
                 </div>
 
@@ -562,12 +625,12 @@
                         </div>
                     </div>
                     <div id="reportPrintArea">
-                        <h3 id="reportTitleHeader" style="display:none;">Statement of Accounts</h3>
+                        <h3 id="reportTitleHeader" style="display:none; font-size: 18px; margin-bottom: 10px; font-weight: bold; color: black;">Statement of Accounts</h3>
                         <div class="table-responsive">
                             <table id="reportTable">
                                 <thead><tr><th>Date</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Gross Amount</th><th>Return Goods</th><th>Net Paid</th></tr></thead>
                                 <tbody id="reportTableBody"></tbody>
-                                <tfoot><tr class="total-row"><td colspan="6" style="text-align: right;">Cumulative Total Net Paid:</td><td id="reportTotalPaidAmount">0.00</td></tr></tfoot>
+                                <tfoot><tr class="total-row"><td colspan="6" style="text-align: right;">Cumulative Total Net Paid:</td><td id="reportTotalPaidAmount" style="font-weight: bold;">0.00</td></tr></tfoot>
                             </table>
                         </div>
                     </div>
@@ -575,7 +638,7 @@
                     <div class="button-group-grid">
                         <button class="action-btn export-btn" onclick="exportReportPDF()">📄 Download Statement PDF</button>
                         <button class="action-btn export-excel-btn" onclick="exportReportExcel()">🟢 Download Statement Excel</button>
-                        <button class="action-btn export-print-btn" onclick="window.print()">🖨️ Print Statement</button>
+                        <button class="action-btn export-print-btn" onclick="triggerDirectPrint('report')">🖨️ Print Statement</button>
                     </div>
                 </div>
 
@@ -890,6 +953,11 @@
     function filterData() {
         const query = document.getElementById('searchInput').value.toLowerCase(); const fromDate = document.getElementById('filterFromDate').value; const toDate = document.getElementById('filterToDate').value; const tbody = document.getElementById('tableBody');
         tbody.innerHTML = ''; currentlyFilteredKeys = [];
+        
+        let headerLabel = `Collection History Records`;
+        if(fromDate || toDate) { headerLabel += ` (From: ${fromDate || 'Start'} To: ${toDate || 'End'})`; }
+        document.getElementById('searchTitleHeader').innerText = headerLabel;
+
         collections.forEach(item => {
             let chequeSearchText = item.chequesList ? item.chequesList.map(c => c.num).join(' ') : (item.cheque || '');
             let matchesDate = (!fromDate || item.date >= fromDate) && (!toDate || item.date <= toDate);
@@ -897,7 +965,11 @@
             if (matchesDate && matchesText) {
                 currentlyFilteredKeys.push(item.key); let isChecked = selectedKeys.includes(item.key) ? 'checked' : ''; let net = parseFloat(item.amount||0) - parseFloat(item.returnAmount||0);
                 let chqHtml = item.chequesList ? item.chequesList.map(c => `• ${c.num} (${parseFloat(c.amt).toLocaleString()})`).join('<br>') : '-';
-                tbody.innerHTML += `<tr id="row-${item.key}" class="${selectedKeys.includes(item.key) ? 'selected-row' : ''}"><td><input type="checkbox" ${isChecked} onclick="toggleSelect('${item.key}', this)"></td><td>${item.date}</td><td>${item.customer}</td><td>${item.invoice}</td><td><b>${item.mode||'Cash'}</b></td><td>${chqHtml}</td><td>${parseFloat(item.amount||0).toLocaleString()}</td><td>${parseFloat(item.returnAmount||0).toLocaleString()}</td><td style="color:#27ae60; font-weight:bold;">${net.toLocaleString('en-US',{minimumFractionDigits:2})}</td><td><button class="btn-edit" onclick="editRecord('${item.key}')">Edit</button><button class="btn-delete" onclick="deleteRecord('${item.key}')">Delete</button></td></tr>`;
+                tbody.innerHTML += `<tr id="row-${item.key}" class="${selectedKeys.includes(item.key) ? 'selected-row' : ''}">
+                    <td class="hide-on-print"><input type="checkbox" ${isChecked} onclick="toggleSelect('${item.key}', this)"></td>
+                    <td>${item.date}</td><td>${item.customer}</td><td>${item.invoice}</td><td><b>${item.mode||'Cash'}</b></td><td>${chqHtml}</td><td>${parseFloat(item.amount||0).toLocaleString()}</td><td>${parseFloat(item.returnAmount||0).toLocaleString()}</td><td style="font-weight:bold;">${net.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
+                    <td class="hide-on-print"><button class="btn-edit" onclick="editRecord('${item.key}')">Edit</button><button class="btn-delete" onclick="deleteRecord('${item.key}')">Delete</button></td>
+                </tr>`;
             }
         });
         calculateTotal();
@@ -933,7 +1005,7 @@
             if(matchDateRange) {
                 let net = parseFloat(item.amount||0) - parseFloat(item.returnAmount||0); total += net;
                 let chqHtml = item.chequesList ? item.chequesList.map(c => c.num).join(', ') : '-';
-                tbody.innerHTML += `<tr><td>${item.date}</td><td>${item.invoice}</td><td>${item.mode||'Cash'}</td><td>${chqHtml}</td><td>${parseFloat(item.amount).toLocaleString()}</td><td>${parseFloat(item.returnAmount||0).toLocaleString()}</td><td style="color:#27ae60; font-weight:bold;">${net.toLocaleString()}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${item.date}</td><td>${item.invoice}</td><td>${item.mode||'Cash'}</td><td>${chqHtml}</td><td>${parseFloat(item.amount).toLocaleString()}</td><td>${parseFloat(item.returnAmount||0).toLocaleString()}</td><td style="font-weight:bold;">${net.toLocaleString()}</td></tr>`;
             }
         });
         document.getElementById('reportTotalPaidAmount').innerText = total.toLocaleString('en-US',{minimumFractionDigits:2});
@@ -961,15 +1033,43 @@
         toggleChequeInput(); addInvoiceRow('', '', '0'); calculateLiveFormTotals();
     }
 
+    // TARGETED AREA PRINT ENGINE CONTROL
+    function triggerDirectPrint(tabType) {
+        // Toggle specific custom title element visibilities explicitly before layout window print triggers
+        if(tabType === 'search') {
+            document.getElementById('searchTitleHeader').style.display = 'block';
+            document.getElementById('reportTitleHeader').style.display = 'none';
+        } else if (tabType === 'report') {
+            document.getElementById('searchTitleHeader').style.display = 'none';
+            document.getElementById('reportTitleHeader').style.display = 'block';
+        }
+        
+        // Dynamic dynamic temporary inline injection logic to mask system interactive checkboxes/actions column lines safely
+        const styleEl = document.createElement("style");
+        styleEl.id = "temp-print-mask-css";
+        styleEl.innerHTML = "@media print { .hide-on-print { display: none !important; } }";
+        document.head.appendChild(styleEl);
+        
+        window.print();
+        
+        // Instantly garbage collect structural injection markers to retain stable viewport web layouts
+        if(document.getElementById("temp-print-mask-css")) {
+            document.getElementById("temp-print-mask-css").remove();
+        }
+        if(tabType === 'search') {
+            document.getElementById('searchTitleHeader').style.display = 'none';
+        }
+    }
+
     // ==========================================
-    // EXPORT ENGINE SUBSYSTEMS (PDF & EXCEL)
+    // EXPORT ENGINE SUBSYSTEMS (PLAIN BLACK & WHITE PDF & EXCEL)
     // ==========================================
 
-    // 1. Search History -> PDF (Only Selected Items)
+    // 1. Search History -> Plain PDF (Only Selected Items)
     function exportSearchPDF() {
         if(selectedKeys.length === 0) { alert("Please select at least one record using checkboxes to export PDF!"); return; }
-        const { jsPDF } = window.jspdf; const doc = new jsPDF('l', 'pt', 'a4'); // Landscape format
-        doc.setFontSize(16); doc.text("Raeez Collection Tracker - Selected Records Report", 40, 40); doc.setFontSize(10);
+        const { jsPDF } = window.jspdf; const doc = new jsPDF('l', 'pt', 'a4'); 
+        doc.setFontSize(16); doc.text("Collection Records Report", 40, 40); doc.setFontSize(10);
         let rows = []; let netTotal = 0;
         selectedKeys.forEach((key, index) => {
             let item = collections.find(c => c.key === key);
@@ -980,7 +1080,15 @@
             }
         });
         rows.push(['', '', '', '', '', 'Selected Net Total:', '', '', netTotal.toLocaleString()]);
-        doc.autoTable({ head: [['#', 'Date', 'Customer Name', 'Invoice No', 'Mode', 'Cheque Details', 'Gross Amt', 'Return Goods', 'Net Balance']], body: rows, startY: 60, styles: { fontSize: 9 } });
+        
+        doc.autoTable({ 
+            head: [['#', 'Date', 'Customer Name', 'Invoice No', 'Mode', 'Cheque Details', 'Gross Amt', 'Return Goods', 'Net Balance']], 
+            body: rows, 
+            startY: 60, 
+            styles: { fontSize: 9, textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.5 },
+            headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold', lineColor: [0, 0, 0], lineWidth: 1 },
+            alternateRowStyles: { fillColor: [255, 255, 255] }
+        });
         doc.save(`Collection_Selected_Report_${Date.now()}.pdf`);
     }
 
@@ -1000,14 +1108,13 @@
         XLSX.writeFile(workbook, `Collection_Filtered_History_${Date.now()}.xlsx`);
     }
 
-    // 3. Customer Statement -> PDF
+    // 3. Customer Statement -> Plain PDF
     function exportReportPDF() {
         const selectedCust = document.getElementById('reportCustomerSelect').value;
         if(!selectedCust) { alert("Please select a customer first!"); return; }
         const { jsPDF } = window.jspdf; const doc = new jsPDF('p', 'pt', 'a4');
         const titleText = document.getElementById('reportTitleHeader').innerText;
-        doc.setFontSize(15); doc.text("Raeez Ledger Statement Systems", 40, 40);
-        doc.setFontSize(12); doc.text(titleText, 40, 60);
+        doc.setFontSize(14); doc.text(titleText, 40, 40);
         let rows = []; let cumulativePaid = 0;
         const fromDateFilter = document.getElementById('reportFromDate').value;
         const toDateFilter = document.getElementById('reportToDate').value;
@@ -1021,7 +1128,15 @@
             }
         });
         rows.push(['', '', '', 'Cumulative Total Net Paid:', '', '', cumulativePaid.toLocaleString()]);
-        doc.autoTable({ head: [['Date', 'Invoice No', 'Payment Mode', 'Cheque Details', 'Gross Amt', 'Return Goods', 'Net Paid']], body: rows, startY: 80, styles: { fontSize: 9 } });
+        
+        doc.autoTable({ 
+            head: [['Date', 'Invoice No', 'Payment Mode', 'Cheque Details', 'Gross Amt', 'Return Goods', 'Net Paid']], 
+            body: rows, 
+            startY: 60, 
+            styles: { fontSize: 9, textColor: [0, 0, 0], lineColor: [0, 0, 0], lineWidth: 0.5 },
+            headStyles: { fillColor: [255, 255, 255], textColor: [0, 0, 0], fontStyle: 'bold', lineColor: [0, 0, 0], lineWidth: 1 },
+            alternateRowStyles: { fillColor: [255, 255, 255] }
+        });
         doc.save(`Statement_${selectedCust.replace(/\s+/g, '_')}.pdf`);
     }
 

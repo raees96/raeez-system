@@ -17,8 +17,6 @@
             background-color: #f4f6f9;
             color: #333;
             min-height: 100vh;
-            overflow-x: hidden;
-            overflow-y: auto;
         }
         
         /* LOGIN SCREEN STYLING */
@@ -28,10 +26,12 @@
             align-items: center;
             height: 100vh;
             background-color: #2c3e50;
+            padding: 20px;
+            box-sizing: border-box;
         }
         .login-box {
             background: white;
-            padding: 40px;
+            padding: 30px 20px;
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             width: 100%;
@@ -41,7 +41,7 @@
         .login-box h3 {
             margin-top: 0;
             color: #2c3e50;
-            font-size: 24px;
+            font-size: 22px;
             margin-bottom: 25px;
         }
         .login-box .form-group {
@@ -53,11 +53,11 @@
         .dashboard-layout {
             display: none;
             min-height: 100vh;
-            width: 100vw;
+            width: 100%;
             position: relative;
         }
         
-        /* Sidebar Styling */
+        /* Responsive Sidebar Styling */
         .sidebar {
             width: 260px;
             background-color: #2c3e50;
@@ -67,12 +67,12 @@
             padding-top: 20px;
             box-shadow: 2px 0 5px rgba(0,0,0,0.1);
             justify-content: space-between;
-            transition: transform 0.3s ease;
             position: fixed;
             top: 0;
             bottom: 0;
             left: 0;
-            z-index: 100;
+            z-index: 1000;
+            transition: transform 0.3s ease;
         }
         .sidebar-header {
             text-align: center;
@@ -97,6 +97,8 @@
             cursor: pointer;
             transition: 0.3s;
             font-weight: 500;
+            display: block;
+            box-sizing: border-box;
         }
         .menu-btn:hover {
             background-color: #34495e;
@@ -107,6 +109,14 @@
             color: white;
             border-left: 5px solid #3498db;
         }
+        .close-sidebar-btn {
+            display: none; /* Hidden on Desktop */
+            background-color: #34495e;
+            color: #e74c3c;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #2c3e50;
+        }
         .logout-btn {
             background-color: #c0392b !important;
             color: white !important;
@@ -116,33 +126,40 @@
             background-color: #e74c3c !important;
         }
 
-        /* Toggle Menu Button */
-        .toggle-menu-btn {
+        /* Top Bar Menu Button for Mobile */
+        .top-navbar {
             background-color: #2c3e50;
+            padding: 10px 15px;
+            display: flex;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 500;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .toggle-menu-btn {
+            background-color: #2980b9;
             color: white;
             border: none;
-            padding: 12px 18px;
-            font-size: 16px;
+            padding: 8px 15px;
+            font-size: 15px;
             cursor: pointer;
             border-radius: 4px;
-            margin-bottom: 15px;
-            display: inline-block;
-            position: sticky;
-            top: 10px;
-            z-index: 50;
+            font-weight: bold;
         }
-        .toggle-menu-btn:hover {
-            background-color: #34495e;
+        .top-navbar-title {
+            color: white;
+            margin-left: 15px;
+            font-size: 16px;
+            font-weight: bold;
         }
 
-        /* Main Content Styling */
+        /* Main Content Responsive Layout */
         .main-content {
-            flex: 1;
-            padding: 20px 20px;
-            margin-left: 260px;
-            transition: margin-left 0.3s ease;
-            min-height: 100vh;
+            padding: 20px;
+            margin-left: 260px; /* Default Desktop width offset */
             box-sizing: border-box;
+            min-height: calc(100vh - 55px);
         }
         .container {
             max-width: 1000px;
@@ -151,21 +168,23 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            margin-bottom: 40px;
+            margin-bottom: 20px;
+            box-sizing: border-box;
         }
         h2 {
             color: #2c3e50;
             margin-top: 0;
-            margin-bottom: 25px;
+            margin-bottom: 22px;
             border-bottom: 2px solid #f2f4f4;
             padding-bottom: 10px;
+            font-size: 20px;
         }
 
         .welcome-view {
             text-align: center;
-            margin-top: 50px;
+            margin-top: 40px;
             color: #7f8c8d;
-            font-weight: 500;
+            padding: 0 10px;
         }
 
         .tab-content {
@@ -175,7 +194,7 @@
             display: block;
         }
 
-        /* Form Controls */
+        /* Form Layouts */
         .form-group {
             margin-bottom: 18px;
         }
@@ -184,6 +203,7 @@
             margin-bottom: 6px;
             font-weight: bold;
             color: #34495e;
+            font-size: 14px;
         }
         input[type="text"], input[type="password"], input[type="number"], input[type="date"], select {
             width: 100%;
@@ -193,12 +213,13 @@
             box-sizing: border-box;
             font-size: 14px;
             background-color: white;
+            height: 45px;
         }
 
-        /* Dynamic Input Layouts */
+        /* Dynamic Row System Mobile Fixes */
         .dynamic-inputs-container {
             border: 1px dashed #3498db;
-            padding: 15px;
+            padding: 12px;
             background-color: #fcfcfc;
             border-radius: 6px;
             margin-top: 10px;
@@ -210,23 +231,33 @@
         }
         .dynamic-row {
             display: flex;
-            gap: 15px;
-            margin-bottom: 12px;
+            gap: 10px;
+            margin-bottom: 15px;
             align-items: flex-end;
+            flex-wrap: wrap; /* Allows wrap on narrow mobile layout */
+            border-bottom: 1px dashed #ddd;
+            padding-bottom: 12px;
+        }
+        .dynamic-row:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+            margin-bottom: 0;
         }
         .dynamic-row .form-group {
             flex: 1;
+            min-width: 130px; /* Prevents text inputs squishing completely */
             margin-bottom: 0;
         }
         .btn-add-row {
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 10px 15px;
+            padding: 12px 15px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
             display: inline-block;
+            font-size: 14px;
         }
         .btn-add-row:hover { background-color: #2980b9; }
         .btn-add-cheque { background-color: #e67e22; }
@@ -235,18 +266,24 @@
             background-color: #e74c3c;
             color: white;
             border: none;
-            padding: 12px 15px;
+            padding: 0;
+            height: 45px;
+            width: 45px;
             border-radius: 5px;
             cursor: pointer;
             font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
         }
 
-        /* LIVE SUMMARY PANEL STYLING */
+        /* LIVE BREAKDOWN SUMMARY */
         .live-summary-panel {
             background-color: #ebf5fb;
             border: 1px solid #a9cce3;
             border-radius: 6px;
-            padding: 15px;
+            padding: 12px;
             margin-top: 25px;
             margin-bottom: 20px;
         }
@@ -254,7 +291,7 @@
             font-weight: bold;
             color: #2980b9;
             margin-bottom: 10px;
-            font-size: 15px;
+            font-size: 14px;
             border-bottom: 1px solid #d4e6f1;
             padding-bottom: 5px;
         }
@@ -262,32 +299,36 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 6px;
-            font-size: 14px;
+            font-size: 13px;
         }
         .live-summary-row.final-net {
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
             color: #27ae60;
             border-top: 1px dashed #a9cce3;
             padding-top: 6px;
             margin-top: 6px;
         }
         
-        /* Layout Structure elements */
+        /* Scrollable Data Tables */
         .table-responsive {
             width: 100%;
             overflow-x: auto;
             margin-top: 15px;
+            -webkit-overflow-scrolling: touch;
+            border: 1px solid #ddd;
+            border-radius: 4px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 950px;
+            min-width: 850px; /* Safe standard desktop scroll viewport width */
         }
         th, td {
             border: 1px solid #ddd;
-            padding: 12px 10px;
+            padding: 10px;
             text-align: left;
+            font-size: 13px;
         }
         th {
             background-color: #34495e;
@@ -303,23 +344,71 @@
             color: white;
             border: none;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
             font-weight: bold;
             margin-top: 10px;
+            box-sizing: border-box;
         }
         .btn-draft {
             background-color: #7f8c8d !important;
         }
         .btn-draft:hover { background-color: #6c7a89 !important; }
         .export-btn { background-color: #2980b9; margin-top: 20px; }
-        .btn-edit { background-color: #f39c12; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-right: 5px; }
-        .btn-delete { background-color: #e74c3c; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; }
-        .search-box { background-color: #ebf5fb; padding: 20px; border-radius: 6px; margin-bottom: 25px; border: 1px solid #d4e6f1; }
-        .badge-draft { background-color: #e67e22; color: white; padding: 3px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; }
+        .btn-edit { background-color: #f39c12; color: white; border: none; padding: 6px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-right: 5px; }
+        .btn-delete { background-color: #e74c3c; color: white; border: none; padding: 6px 10px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .search-box { background-color: #ebf5fb; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #d4e6f1; }
+        .badge-draft { background-color: #e67e22; color: white; padding: 2px 7px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 5px; }
+
+        /* -------------------------------------------------------------
+           RESPONSIVE MEDIA QUERIES FOR MOBILE DEVICES
+        ------------------------------------------------------------- */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%); /* Completely hide sidebar to left */
+            }
+            .sidebar.open {
+                transform: translateX(0); /* Slide in on open trigger */
+            }
+            .close-sidebar-btn {
+                display: block; /* Show close option only inside mobile panel layout */
+            }
+            .main-content {
+                margin-left: 0; /* Reset desktop structural shifts */
+                padding: 15px;
+            }
+            .container {
+                padding: 15px;
+            }
+            .top-navbar {
+                display: flex; /* Active header row */
+            }
+            .dynamic-row .form-group {
+                min-width: 100%; /* Force stacking layout structure elements inside form row */
+            }
+            .btn-remove-row {
+                width: 100%; /* Expand full stretch action rows */
+                margin-top: 5px;
+            }
+        }
+
+        @media (min-width: 769px) {
+            .top-navbar {
+                display: none; /* Auto eliminate responsive header strips on display setups */
+            }
+            .sidebar {
+                transform: translateX(0) !important; /* Locks structural anchor positions */
+            }
+        }
     </style>
 </head>
 <body>
+
+    <!-- TOP RESPONSIVE HEADER BAR (MOBILE ONLY) -->
+    <div class="top-navbar">
+        <button class="toggle-menu-btn" onclick="openSidebar()">☰ Menu</button>
+        <div class="top-navbar-title">Raeez Tracker</div>
+    </div>
 
     <!-- 1. LOGIN SCREEN VIEW -->
     <div id="loginScreen" class="login-screen">
@@ -342,6 +431,8 @@
         
         <div class="sidebar" id="sidebarMenu">
             <div>
+                <!-- Mobile only Close Navigation option row -->
+                <button class="menu-btn close-sidebar-btn" onclick="closeSidebar()">❌ Close Menu</button>
                 <div class="sidebar-header">Raeez Dashboard</div>
                 <div class="menu-links">
                     <button class="menu-btn active" id="btnHomeMenu" onclick="goHome(this)">🏠 Home</button>
@@ -355,11 +446,10 @@
         </div>
 
         <div class="main-content" id="mainContentArea">
-            <button class="toggle-menu-btn" onclick="toggleSidebar()">☰ Menu</button>
 
             <div id="welcomeView" class="welcome-view">
                 <h2>Welcome to Raeez Collection System</h2>
-                <p>Use the sidebar menu to manage your live records or katu satahuna (drafts).</p>
+                <p>Use the menu to manage your live records or katu satahuna (drafts).</p>
             </div>
 
             <div class="container" id="workspaceContainer" style="display: none;">
@@ -368,7 +458,7 @@
                 <div id="addTab" class="tab-content">
                     <h2 id="formTitle">Add Collection Entry</h2>
                     <input type="hidden" id="editKey" value="">
-                    <input type="hidden" id="draftIdField" value=""> <!-- Tracks active local draft ID -->
+                    <input type="hidden" id="draftIdField" value=""> 
                     
                     <div class="form-group">
                         <label>Customer Name:</label>
@@ -414,10 +504,10 @@
                     <button class="action-btn btn-draft" id="btnSaveDraft" onclick="saveAsDraft()">💾 Save as Draft (Katu Satahan)</button>
                 </div>
 
-                <!-- NEW SECTION: Drafts View Management Layout -->
+                <!-- SECTION: Drafts View Management Layout -->
                 <div id="draftTab" class="tab-content">
                     <h2>📂 Saved Drafts (Local Temporary Folders)</h2>
-                    <p style="color: #7f8c8d;">These collections are temporarily saved on your device and are not uploaded to the cloud.</p>
+                    <p style="color: #7f8c8d; font-size: 13px;">These collections are temporarily saved on your device and are not uploaded to the cloud.</p>
                     <div class="table-responsive">
                         <table>
                             <thead>
@@ -427,7 +517,7 @@
                                     <th>Invoices</th>
                                     <th>Payment Mode</th>
                                     <th>Net Balance (LKR)</th>
-                                    <th class="action-col" style="width:180px;">Actions</th>
+                                    <th style="width:180px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="draftTableBody"></tbody>
@@ -439,17 +529,17 @@
                 <div id="searchTab" class="tab-content">
                     <h2>Collection Records Search</h2>
                     <div class="search-box">
-                        <div class="date-filter-row" style="display:flex; gap:15px;">
-                            <div class="form-group" style="flex:1;"><label>From Date:</label><input type="date" id="filterFromDate" onchange="filterData()"></div>
-                            <div class="form-group" style="flex:1;"><label>To Date:</label><input type="date" id="filterToDate" onchange="filterData()"></div>
+                        <div style="display:flex; gap:10px; flex-wrap: wrap;">
+                            <div class="form-group" style="flex:1; min-width: 140px;"><label>From Date:</label><input type="date" id="filterFromDate" onchange="filterData()"></div>
+                            <div class="form-group" style="flex:1; min-width: 140px;"><label>To Date:</label><input type="date" id="filterToDate" onchange="filterData()"></div>
                         </div>
-                        <div class="form-group" style="margin-top: 15px;"><label>Filter Search:</label><input type="text" id="searchInput" onkeyup="filterData()" placeholder="Type here to search..."></div>
+                        <div class="form-group" style="margin-top: 10px;"><label>Filter Search:</label><input type="text" id="searchInput" onkeyup="filterData()" placeholder="Type here to search..."></div>
                     </div>
                     <div class="table-responsive">
                         <table id="collectionTable">
                             <thead>
                                 <tr>
-                                    <th style="width:50px;"><input type="checkbox" id="selectAllBox" onclick="toggleSelectAll(this)"></th>
+                                    <th style="width:40px;"><input type="checkbox" id="selectAllBox" onclick="toggleSelectAll(this)"></th>
                                     <th>Date</th><th>Customer Name</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Total</th><th>Return</th><th>Net Balance</th><th style="width:140px;">Actions</th>
                                 </tr>
                             </thead>
@@ -500,11 +590,18 @@
 
     let collections = []; let selectedKeys = []; let currentlyFilteredKeys = [];
 
-    // Core Init Launcher
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('dateSelect').valueAsDate = new Date();
         renderDraftsList();
     });
+
+    // Mobile Responsive Control Helpers
+    function openSidebar() {
+        document.getElementById('sidebarMenu').classList.add('open');
+    }
+    function closeSidebar() {
+        document.getElementById('sidebarMenu').classList.remove('open');
+    }
 
     function toggleChequeInput() {
         const mode = document.getElementById('paymentMode').value;
@@ -518,12 +615,6 @@
             chequeContainer.innerHTML = '';
         }
         calculateLiveFormTotals();
-    }
-
-    function toggleSidebar() {
-        const sidebar = document.getElementById('sidebarMenu');
-        const mainContent = document.getElementById('mainContentArea');
-        sidebar.classList.toggle('open');
     }
 
     db.on("value", (snapshot) => {
@@ -573,6 +664,7 @@
         document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
         resetForm();
+        closeSidebar(); // Auto shut panel on shift inputs
     }
 
     function switchView(tabId, btnElement) {
@@ -587,6 +679,8 @@
         if(tabId === 'addTab' && document.getElementById('invoiceInputsContainer').children.length === 0) addInvoiceRow('', '');
         if(tabId === 'draftTab') renderDraftsList();
         if(tabId === 'searchTab') filterData();
+        
+        closeSidebar(); // Auto shut sidebar on selecting panel options
     }
 
     function addInvoiceRow(invValue = '', amtValue = '') {
@@ -628,7 +722,7 @@
         const containerId = type === 'invoice' ? 'invoiceInputsContainer' : 'chequeInputsContainer';
         const rows = document.getElementById(containerId).querySelectorAll('.dynamic-row');
         if(rows.length <= 1 && rows[0]) rows[0].querySelector('.btn-remove-row').style.display = 'none';
-        else rows.forEach(r => r.querySelector('.btn-remove-row').style.display = 'block');
+        else rows.forEach(r => r.querySelector('.btn-remove-row').style.display = 'flex');
     }
 
     function calculateLiveFormTotals() {
@@ -659,9 +753,6 @@
         document.getElementById('livePaymentModeTotal').innerText = modeAllocatedTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
     }
 
-    /* -------------------------------------------------------------
-       LOCAL STORAGE DRAFT MANAGEMENT ENGINE 
-    ------------------------------------------------------------- */
     function getLocalDrafts() {
         return JSON.parse(localStorage.getItem("raeez_drafts") || "[]");
     }
@@ -700,14 +791,12 @@
         const draftData = { customer, mode, date, returnAmount, invoicesList, chequesList, lastUpdated: Date.now() };
 
         if(draftId) {
-            // Update existing local draft slot
             const idx = drafts.findIndex(d => d.id == draftId);
             if(idx !== -1) {
                 draftData.id = draftId;
                 drafts[idx] = draftData;
             }
         } else {
-            // Setup new identifier slot
             draftData.id = 'draft-' + Date.now();
             drafts.push(draftData);
         }
@@ -732,7 +821,7 @@
 
         tbody.innerHTML = '';
         if(drafts.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="loading-text">No active drafts found on this device.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px; color:#95a5a6;">No active drafts found on this device.</td></tr>';
             return;
         }
 
@@ -749,7 +838,7 @@
                     <td>${d.mode}</td>
                     <td style="font-weight:bold; color:#e67e22;">${net.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
                     <td>
-                        <button class="btn-edit" onclick="loadDraftForEditing('${d.id}')">Open / Edit</button>
+                        <button class="btn-edit" onclick="loadDraftForEditing('${d.id}')">Open</button>
                         <button class="btn-delete" onclick="deleteDraft('${d.id}')">Delete</button>
                     </td>
                 </tr>`;
@@ -797,9 +886,6 @@
         }
     }
 
-    /* -------------------------------------------------------------
-       FINALIZE UPLOAD WORKFLOW ENGINE 
-    ------------------------------------------------------------- */
     function confirmAndSave() {
         const customer = document.getElementById('customerName').value;
         const mode = document.getElementById('paymentMode').value;
@@ -858,7 +944,6 @@
                 
                 Promise.all(promises).then(() => {
                     alert("Collection uploaded safely to cloud!");
-                    // If it was a draft, clear it from device storage
                     if(localDraftId) {
                         let drafts = getLocalDrafts().filter(d => d.id != localDraftId);
                         saveLocalDrafts(drafts);
@@ -867,7 +952,6 @@
                     switchView('searchTab', document.getElementById('btnSearchMenu'));
                 });
             } else {
-                // Regular Cloud Edit Mode update pathway logic
                 let updateData = {
                     customer, date, mode, returnAmount,
                     invoice: invoiceRows[0].querySelector('.invoice-num-field').value,
@@ -951,7 +1035,7 @@
         const tbody = document.getElementById('reportTableBody');
         tbody.innerHTML = ''; let total = 0;
 
-        if(!selected) { tbody.innerHTML = '<tr><td colspan="7" class="loading-text">Select customer.</td></tr>'; return; }
+        if(!selected) { tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:20px;">Select customer.</td></tr>'; return; }
         document.getElementById('reportTitleHeader').innerText = `Report - ${selected}`;
         document.getElementById('reportTitleHeader').style.display = 'block';
 

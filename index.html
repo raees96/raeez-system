@@ -57,7 +57,7 @@
             position: relative;
         }
         
-        /* Responsive Sidebar Styling */
+        /* Sidebar Navigation - Hidden by default on both Mobile & PC */
         .sidebar {
             width: 260px;
             background-color: #2c3e50;
@@ -65,7 +65,7 @@
             display: flex;
             flex-direction: column;
             padding-top: 20px;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.25);
             justify-content: space-between;
             position: fixed;
             top: 0;
@@ -73,6 +73,10 @@
             left: 0;
             z-index: 1000;
             transition: transform 0.3s ease;
+            transform: translateX(-100%); /* Hidden state */
+        }
+        .sidebar.open {
+            transform: translateX(0); /* Opened state */
         }
         .sidebar-header {
             text-align: center;
@@ -110,7 +114,6 @@
             border-left: 5px solid #3498db;
         }
         .close-sidebar-btn {
-            display: none; /* Hidden on Desktop */
             background-color: #34495e;
             color: #e74c3c;
             font-weight: bold;
@@ -126,7 +129,7 @@
             background-color: #e74c3c !important;
         }
 
-        /* Top Bar Menu Button for Mobile */
+        /* Top Bar Menu Button for Mobile & PC */
         .top-navbar {
             background-color: #2c3e50;
             padding: 10px 15px;
@@ -154,15 +157,15 @@
             font-weight: bold;
         }
 
-        /* Main Content Responsive Layout */
+        /* Main Content Layout */
         .main-content {
             padding: 20px;
-            margin-left: 260px; /* Default Desktop width offset */
+            margin-left: 0; /* Full screen space on default since menu is hidden */
             box-sizing: border-box;
             min-height: calc(100vh - 55px);
         }
         .container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: auto;
             background: white;
             padding: 20px;
@@ -216,10 +219,10 @@
             height: 45px;
         }
 
-        /* Dynamic Row System Mobile Fixes */
+        /* Dynamic Row System - Per Invoice Return Field Style */
         .dynamic-inputs-container {
             border: 1px dashed #3498db;
-            padding: 12px;
+            padding: 15px;
             background-color: #fcfcfc;
             border-radius: 6px;
             margin-top: 10px;
@@ -231,12 +234,12 @@
         }
         .dynamic-row {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 15px;
             align-items: flex-end;
-            flex-wrap: wrap; /* Allows wrap on narrow mobile layout */
+            flex-wrap: wrap; 
             border-bottom: 1px dashed #ddd;
-            padding-bottom: 12px;
+            padding-bottom: 15px;
         }
         .dynamic-row:last-child {
             border-bottom: none;
@@ -245,8 +248,12 @@
         }
         .dynamic-row .form-group {
             flex: 1;
-            min-width: 130px; /* Prevents text inputs squishing completely */
+            min-width: 180px; 
             margin-bottom: 0;
+        }
+        .dynamic-row .form-group-sm {
+            flex: 0.8;
+            min-width: 150px;
         }
         .btn-add-row {
             background-color: #3498db;
@@ -322,7 +329,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            min-width: 850px; /* Safe standard desktop scroll viewport width */
+            min-width: 950px; 
         }
         th, td {
             border: 1px solid #ddd;
@@ -360,54 +367,29 @@
         .search-box { background-color: #ebf5fb; padding: 15px; border-radius: 6px; margin-bottom: 20px; border: 1px solid #d4e6f1; }
         .badge-draft { background-color: #e67e22; color: white; padding: 2px 7px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-left: 5px; }
 
-        /* -------------------------------------------------------------
-           RESPONSIVE MEDIA QUERIES FOR MOBILE DEVICES
-        ------------------------------------------------------------- */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%); /* Completely hide sidebar to left */
-            }
-            .sidebar.open {
-                transform: translateX(0); /* Slide in on open trigger */
-            }
-            .close-sidebar-btn {
-                display: block; /* Show close option only inside mobile panel layout */
-            }
             .main-content {
-                margin-left: 0; /* Reset desktop structural shifts */
                 padding: 15px;
             }
             .container {
                 padding: 15px;
             }
-            .top-navbar {
-                display: flex; /* Active header row */
-            }
-            .dynamic-row .form-group {
-                min-width: 100%; /* Force stacking layout structure elements inside form row */
+            .dynamic-row .form-group, .dynamic-row .form-group-sm {
+                min-width: 100%; 
             }
             .btn-remove-row {
-                width: 100%; /* Expand full stretch action rows */
+                width: 100%; 
                 margin-top: 5px;
-            }
-        }
-
-        @media (min-width: 769px) {
-            .top-navbar {
-                display: none; /* Auto eliminate responsive header strips on display setups */
-            }
-            .sidebar {
-                transform: translateX(0) !important; /* Locks structural anchor positions */
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- TOP RESPONSIVE HEADER BAR (MOBILE ONLY) -->
+    <!-- TOP NAVIGATION BAR (ALWAYS VISIBLE TO OPEN MENU) -->
     <div class="top-navbar">
         <button class="toggle-menu-btn" onclick="openSidebar()">☰ Menu</button>
-        <div class="top-navbar-title">Raeez Tracker</div>
+        <div class="top-navbar-title">Raeez Collection Tracker</div>
     </div>
 
     <!-- 1. LOGIN SCREEN VIEW -->
@@ -431,7 +413,6 @@
         
         <div class="sidebar" id="sidebarMenu">
             <div>
-                <!-- Mobile only Close Navigation option row -->
                 <button class="menu-btn close-sidebar-btn" onclick="closeSidebar()">❌ Close Menu</button>
                 <div class="sidebar-header">Raeez Dashboard</div>
                 <div class="menu-links">
@@ -449,7 +430,7 @@
 
             <div id="welcomeView" class="welcome-view">
                 <h2>Welcome to Raeez Collection System</h2>
-                <p>Use the menu to manage your live records or katu satahuna (drafts).</p>
+                <p>Use the menu button above to navigate through the system.</p>
             </div>
 
             <div class="container" id="workspaceContainer" style="display: none;">
@@ -477,14 +458,9 @@
                         <input type="date" id="dateSelect">
                     </div>
 
-                    <label style="margin-top: 15px; color: #2c3e50;">Invoice Details:</label>
+                    <label style="margin-top: 15px; color: #2c3e50;">Invoice Details & Return Values:</label>
                     <div class="dynamic-inputs-container" id="invoiceInputsContainer"></div>
-                    <button type="button" class="btn-add-row" id="btnAddRow" onclick="addInvoiceRow('', '')">➕ Add Another Invoice</button>
-
-                    <div class="form-group" style="margin-top: 25px; background-color: #fdf2e9; padding: 15px; border-radius: 6px; border: 1px solid #fadbd8;">
-                        <label style="color: #e67e22;">Customer Return Goods Value (LKR) - Optional:</label>
-                        <input type="number" id="returnAmount" placeholder="0.00" value="0" oninput="calculateLiveFormTotals()">
-                    </div>
+                    <button type="button" class="btn-add-row" id="btnAddRow" onclick="addInvoiceRow('', '', '0')">➕ Add Another Invoice</button>
 
                     <div id="chequeSectionContainer" style="display: none; margin-top: 20px;">
                         <label style="color: #e67e22;">Cheque Details (Breakdown):</label>
@@ -495,13 +471,13 @@
                     <div class="live-summary-panel">
                         <div class="live-summary-title">📊 Pre-Save Calculation Breakdown</div>
                         <div class="live-summary-row"><span>Gross Invoice Total:</span><span>LKR <span id="liveGrossInvoiceTotal">0.00</span></span></div>
-                        <div class="live-summary-row" style="color: #c0392b;"><span>(-) Customer Return Deductions:</span><span>LKR <span id="liveReturnDeduction">0.00</span></span></div>
+                        <div class="live-summary-row" style="color: #c0392b;"><span>(-) Total Linked Return Deductions:</span><span>LKR <span id="liveReturnDeduction">0.00</span></span></div>
                         <div class="live-summary-row" style="font-weight: bold; color: #2c3e50; border-top: 1px solid #d4e6f1; padding-top: 4px;"><span>Net Payable Amount:</span><span>LKR <span id="liveNetPayableAmount">0.00</span></span></div>
                         <div class="live-summary-row final-net" id="livePaymentModeRow"><span>Selected Mode Allocation (<span id="livePaymentModeLabel">Cash</span>):</span><span>LKR <span id="livePaymentModeTotal">0.00</span></span></div>
                     </div>
 
                     <button class="action-btn" id="btnSave" onclick="confirmAndSave()">Save & Upload to Cloud</button>
-                    <button class="action-btn btn-draft" id="btnSaveDraft" onclick="saveAsDraft()">💾 Save as Draft (Katu Satahan)</button>
+                    <button class="action-btn btn-draft" id="btnSaveDraft" onclick="saveAsDraft()">💾 Save as Draft</button>
                 </div>
 
                 <!-- SECTION: Drafts View Management Layout -->
@@ -514,7 +490,7 @@
                                 <tr>
                                     <th>Date</th>
                                     <th>Customer Name</th>
-                                    <th>Invoices</th>
+                                    <th>Invoices (Linked Returns)</th>
                                     <th>Payment Mode</th>
                                     <th>Net Balance (LKR)</th>
                                     <th style="width:180px;">Actions</th>
@@ -540,7 +516,7 @@
                             <thead>
                                 <tr>
                                     <th style="width:40px;"><input type="checkbox" id="selectAllBox" onclick="toggleSelectAll(this)"></th>
-                                    <th>Date</th><th>Customer Name</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Total</th><th>Return</th><th>Net Balance</th><th style="width:140px;">Actions</th>
+                                    <th>Date</th><th>Customer Name</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Gross Amount</th><th>Return Goods</th><th>Net Balance</th><th style="width:140px;">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody"></tbody>
@@ -562,7 +538,7 @@
                         <h3 id="reportTitleHeader" style="display:none;">Statement of Accounts</h3>
                         <div class="table-responsive">
                             <table id="reportTable">
-                                <thead><tr><th>Date</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Gross Amount</th><th>Return</th><th>Net Paid</th></tr></thead>
+                                <thead><tr><th>Date</th><th>Invoice No</th><th>Payment Mode</th><th>Cheque Details</th><th>Gross Amount</th><th>Return Goods</th><th>Net Paid</th></tr></thead>
                                 <tbody id="reportTableBody"></tbody>
                                 <tfoot><tr class="total-row"><td colspan="6" style="text-align: right;">Cumulative Total Net Paid:</td><td id="reportTotalPaidAmount">0.00</td></tr></tfoot>
                             </table>
@@ -595,7 +571,7 @@
         renderDraftsList();
     });
 
-    // Mobile Responsive Control Helpers
+    // Sidebar Controller for both PC and Mobile devices
     function openSidebar() {
         document.getElementById('sidebarMenu').classList.add('open');
     }
@@ -664,7 +640,7 @@
         document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
         if(btnElement) btnElement.classList.add('active');
         resetForm();
-        closeSidebar(); // Auto shut panel on shift inputs
+        closeSidebar(); 
     }
 
     function switchView(tabId, btnElement) {
@@ -676,20 +652,22 @@
         document.getElementById(tabId).classList.add('active');
         btnElement.classList.add('active');
         
-        if(tabId === 'addTab' && document.getElementById('invoiceInputsContainer').children.length === 0) addInvoiceRow('', '');
+        if(tabId === 'addTab' && document.getElementById('invoiceInputsContainer').children.length === 0) addInvoiceRow('', '', '0');
         if(tabId === 'draftTab') renderDraftsList();
         if(tabId === 'searchTab') filterData();
         
-        closeSidebar(); // Auto shut sidebar on selecting panel options
+        closeSidebar(); 
     }
 
-    function addInvoiceRow(invValue = '', amtValue = '') {
+    // Dynamic Row implementation linked directly with invoice-level return amounts
+    function addInvoiceRow(invValue = '', amtValue = '', retValue = '0') {
         const container = document.getElementById('invoiceInputsContainer');
         const rowId = 'inv-row-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
         const rowHtml = `
             <div class="dynamic-row" id="${rowId}">
                 <div class="form-group"><label>Invoice Number:</label><input type="text" class="invoice-num-field" value="${invValue}"></div>
                 <div class="form-group"><label>Amount (LKR):</label><input type="number" class="invoice-amt-field" value="${amtValue}" oninput="calculateLiveFormTotals()"></div>
+                <div class="form-group form-group-sm" style="background-color: #fdf2e9; padding: 5px; border-radius: 4px;"><label style="color:#e67e22;">Return Value (LKR):</label><input type="number" class="invoice-ret-field" value="${retValue}" oninput="calculateLiveFormTotals()"></div>
                 <button type="button" class="btn-remove-row" onclick="removeDynamicRow('${rowId}', 'invoice')">❌</button>
             </div>`;
         container.insertAdjacentHTML('beforeend', rowHtml);
@@ -728,13 +706,17 @@
     function calculateLiveFormTotals() {
         const invoiceRows = document.querySelectorAll('#invoiceInputsContainer .dynamic-row');
         let grossTotal = 0;
-        invoiceRows.forEach(row => { grossTotal += parseFloat(row.querySelector('.invoice-amt-field').value || 0); });
+        let totalReturn = 0;
+
+        invoiceRows.forEach(row => { 
+            grossTotal += parseFloat(row.querySelector('.invoice-amt-field').value || 0); 
+            totalReturn += parseFloat(row.querySelector('.invoice-ret-field').value || 0);
+        });
         
-        const returnAmt = parseFloat(document.getElementById('returnAmount').value || 0);
-        const netPayable = grossTotal - returnAmt;
+        const netPayable = grossTotal - totalReturn;
 
         document.getElementById('liveGrossInvoiceTotal').innerText = grossTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
-        document.getElementById('liveReturnDeduction').innerText = returnAmt.toLocaleString('en-US', {minimumFractionDigits: 2});
+        document.getElementById('liveReturnDeduction').innerText = totalReturn.toLocaleString('en-US', {minimumFractionDigits: 2});
         document.getElementById('liveNetPayableAmount').innerText = netPayable.toLocaleString('en-US', {minimumFractionDigits: 2});
 
         const mode = document.getElementById('paymentMode').value;
@@ -766,14 +748,14 @@
         const customer = document.getElementById('customerName').value || "Unnamed Customer";
         const mode = document.getElementById('paymentMode').value;
         const date = document.getElementById('dateSelect').value;
-        const returnAmount = parseFloat(document.getElementById('returnAmount').value || 0);
         const draftId = document.getElementById('draftIdField').value;
 
         let invoicesList = [];
         document.querySelectorAll('#invoiceInputsContainer .dynamic-row').forEach(row => {
             invoicesList.push({
                 invoice: row.querySelector('.invoice-num-field').value,
-                amount: row.querySelector('.invoice-amt-field').value
+                amount: row.querySelector('.invoice-amt-field').value,
+                returnAmount: row.querySelector('.invoice-ret-field').value
             });
         });
 
@@ -788,7 +770,7 @@
         }
 
         let drafts = getLocalDrafts();
-        const draftData = { customer, mode, date, returnAmount, invoicesList, chequesList, lastUpdated: Date.now() };
+        const draftData = { customer, mode, date, invoicesList, chequesList, lastUpdated: Date.now() };
 
         if(draftId) {
             const idx = drafts.findIndex(d => d.id == draftId);
@@ -826,15 +808,16 @@
         }
 
         drafts.sort((a,b) => b.lastUpdated - a.lastUpdated).forEach(d => {
-            let invNumbers = d.invoicesList.map(i => i.invoice || '?').join(', ');
+            let invDetails = d.invoicesList.map(i => `${i.invoice || '?'}(Ret: ${parseFloat(i.returnAmount||0).toLocaleString()})`).join(', ');
             let gross = d.invoicesList.reduce((acc, curr) => acc + parseFloat(curr.amount || 0), 0);
-            let net = gross - parseFloat(d.returnAmount || 0);
+            let totalRet = d.invoicesList.reduce((acc, curr) => acc + parseFloat(curr.returnAmount || 0), 0);
+            let net = gross - totalRet;
 
             tbody.innerHTML += `
                 <tr>
                     <td>${d.date}</td>
                     <td><b>${d.customer}</b></td>
-                    <td>${invNumbers}</td>
+                    <td>${invDetails}</td>
                     <td>${d.mode}</td>
                     <td style="font-weight:bold; color:#e67e22;">${net.toLocaleString('en-US',{minimumFractionDigits:2})}</td>
                     <td>
@@ -854,14 +837,13 @@
         document.getElementById('customerName').value = d.customer;
         document.getElementById('paymentMode').value = d.mode;
         document.getElementById('dateSelect').value = d.date;
-        document.getElementById('returnAmount').value = d.returnAmount;
         document.getElementById('draftIdField').value = d.id;
 
         document.getElementById('invoiceInputsContainer').innerHTML = '';
         if(d.invoicesList && d.invoicesList.length > 0) {
-            d.invoicesList.forEach(i => addInvoiceRow(i.invoice, i.amount));
+            d.invoicesList.forEach(i => addInvoiceRow(i.invoice, i.amount, i.returnAmount || '0'));
         } else {
-            addInvoiceRow('', '');
+            addInvoiceRow('', '', '0');
         }
 
         if(d.mode === 'Cheque') {
@@ -892,7 +874,6 @@
         const date = document.getElementById('dateSelect').value;
         const editKey = document.getElementById('editKey').value;
         const localDraftId = document.getElementById('draftIdField').value;
-        const returnAmount = parseFloat(document.getElementById('returnAmount').value || 0);
         const invoiceRows = document.querySelectorAll('#invoiceInputsContainer .dynamic-row');
 
         if(!customer || !date || invoiceRows.length === 0) {
@@ -900,16 +881,22 @@
             return;
         }
 
-        let invoicesValid = true; let invoiceGrossTotal = 0;
+        let invoicesValid = true; let invoiceGrossTotal = 0; let totalReturnAmount = 0;
         invoiceRows.forEach(row => {
             const invNum = row.querySelector('.invoice-num-field').value;
             const invAmt = row.querySelector('.invoice-amt-field').value;
+            const invRet = row.querySelector('.invoice-ret-field').value || 0;
             if(!invNum || !invAmt) invoicesValid = false;
-            else invoiceGrossTotal += parseFloat(invAmt);
+            else {
+                invoiceGrossTotal += parseFloat(invAmt);
+                totalReturnAmount += parseFloat(invRet);
+            }
         });
         if(!invoicesValid) { alert("Please fill all invoice numbers and amounts."); return; }
 
         let chequesList = [];
+        const requiredNet = invoiceGrossTotal - totalReturnAmount;
+
         if(mode === 'Cheque') {
             let chqValid = true; let totalChequeValue = 0;
             document.querySelectorAll('#chequeInputsContainer .dynamic-row').forEach(row => {
@@ -920,7 +907,6 @@
             });
             if(!chqValid || chequesList.length === 0) { alert("Please complete Cheque details."); return; }
             
-            const requiredNet = invoiceGrossTotal - returnAmount;
             if (Math.abs(totalChequeValue - requiredNet) > 0.01) {
                 alert(`Amount Mismatch! Net Payable: LKR ${requiredNet.toFixed(2)} vs Cheque: LKR ${totalChequeValue.toFixed(2)}`);
                 return;
@@ -930,13 +916,14 @@
         if (confirm("Do you want to upload this data permanently to the cloud?")) {
             if (!editKey) {
                 let promises = [];
-                invoiceRows.forEach((row, index) => {
-                    const assignedReturn = (index === 0) ? returnAmount : 0;
+                // Cloud structure maps single items while preserving multi-row linked context entries
+                invoiceRows.forEach((row) => {
                     let dataObject = {
                         customer,
                         invoice: row.querySelector('.invoice-num-field').value,
                         amount: row.querySelector('.invoice-amt-field').value,
-                        mode, date, returnAmount: assignedReturn
+                        returnAmount: row.querySelector('.invoice-ret-field').value || 0,
+                        mode, date
                     };
                     if(mode === 'Cheque') dataObject.chequesList = chequesList;
                     promises.push(db.push(dataObject));
@@ -953,9 +940,10 @@
                 });
             } else {
                 let updateData = {
-                    customer, date, mode, returnAmount,
+                    customer, date, mode,
                     invoice: invoiceRows[0].querySelector('.invoice-num-field').value,
-                    amount: invoiceRows[0].querySelector('.invoice-amt-field').value
+                    amount: invoiceRows[0].querySelector('.invoice-amt-field').value,
+                    returnAmount: invoiceRows[0].querySelector('.invoice-ret-field').value || 0
                 };
                 if(mode === 'Cheque') updateData.chequesList = chequesList;
                 db.child(editKey).set(updateData).then(() => {
@@ -1007,11 +995,10 @@
         document.getElementById('customerName').value = item.customer;
         document.getElementById('paymentMode').value = item.mode || 'Cash';
         document.getElementById('dateSelect').value = item.date;
-        document.getElementById('returnAmount').value = item.returnAmount || 0;
         document.getElementById('editKey').value = key;
 
         document.getElementById('invoiceInputsContainer').innerHTML = '';
-        addInvoiceRow(item.invoice, item.amount);
+        addInvoiceRow(item.invoice, item.amount, item.returnAmount || '0');
         document.getElementById('btnAddRow').style.display = 'none';
 
         if(item.mode === 'Cheque') {
@@ -1042,7 +1029,7 @@
         collections.filter(c => c.customer === selected).forEach(item => {
             let net = parseFloat(item.amount||0) - parseFloat(item.returnAmount||0); total += net;
             let chqHtml = item.chequesList ? item.chequesList.map(c => c.num).join(', ') : '-';
-            tbody.innerHTML += `<tr><td>${item.date}</td><td>${item.invoice}</td><td>${item.mode||'Cash'}</td><td>${chqHtml}</td><td>${parseFloat(item.amount).toLocaleString()}</td><td>${parseFloat(item.returnAmount).toLocaleString()}</td><td style="color:#27ae60; font-weight:bold;">${net.toLocaleString()}</td></tr>`;
+            tbody.innerHTML += `<tr><td>${item.date}</td><td>${item.invoice}</td><td>${item.mode||'Cash'}</td><td>${chqHtml}</td><td>${parseFloat(item.amount).toLocaleString()}</td><td>${parseFloat(item.returnAmount||0).toLocaleString()}</td><td style="color:#27ae60; font-weight:bold;">${net.toLocaleString()}</td></tr>`;
         });
         document.getElementById('reportTotalPaidAmount').innerText = total.toLocaleString('en-US',{minimumFractionDigits:2});
     }
@@ -1067,7 +1054,6 @@
     function resetForm() {
         document.getElementById('customerName').value = '';
         document.getElementById('paymentMode').value = 'Cash';
-        document.getElementById('returnAmount').value = '0';
         document.getElementById('editKey').value = "";
         document.getElementById('draftIdField').value = "";
         document.getElementById('formTitle').innerText = "Add Collection Entry";
@@ -1076,7 +1062,7 @@
         document.getElementById('invoiceInputsContainer').innerHTML = '';
         document.getElementById('chequeInputsContainer').innerHTML = '';
         toggleChequeInput();
-        addInvoiceRow('', '');
+        addInvoiceRow('', '', '0');
         calculateLiveFormTotals();
     }
 
